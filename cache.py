@@ -9,7 +9,6 @@ import argparse
 import torch
 import torch.nn as nn
 
-
 def add_cache_arguments(parser: argparse.ArgumentParser):
     group = parser.add_argument_group("cache_args")
     # KV-Cache Kwargs
@@ -1480,36 +1479,20 @@ class KVCacheLSH(KVCacheHeadSpecific):
         super().reset()
         self.key_hash.zero_()
 
-    def _prefill_update(self, input_pos, k_val, v_val, **kwargs):
-        # Custom code for LSH -- store the key vector hash
-        k_val_hash = self._hash_fn(k_val)
-        # print(f"[DEBUG] in _prefill_update(), k_val_hash shape: {k_val_hash.shape}, input_pos shape: {input_pos.shape}, input_pos: {input_pos}")
-        self.key_hash.scatter_(2, input_pos.view(1, 1, -1, 1).expand(1, 1, -1, self.lsh_dim), k_val_hash)
-        return super()._prefill_update(input_pos, k_val, v_val, **kwargs)
-
     def _decoding_update(self, input_pos, k_val, v_val, **kwargs):
-        # print(f"[DEBUG] in _decoding_update(), input_pos shape: {input_pos.shape}, input_pos: {input_pos}, k_val shape: {k_val.shape}, k_val dtype: {k_val.dtype}")
         # Same as KVCacheHeadSpecific, but we also update the LSH hash of the keys for decoding
-        
-        # k_val_hash = self._hash_fn(k_val.squeeze(0))
         k_val_hash = self._hash_fn(k_val)
-        # print(f"[DEBUG] k_val_hash shape: {k_val_hash.shape}, k_val_hash dtype: {k_val_hash.dtype}")
-
+        
         fill_indices = self._eviction_idx(input_pos, k_val_hash)
-        # print(f"[DEBUG] fill_indices shape: {fill_indices.shape}, fill_indices: {fill_indices}")
         num_insertions = (
             (self.pos.gather(2, fill_indices.view(1, -1, 1)).squeeze() == -1)
             .int()
             .view(-1)
         )
-
         self._fill(input_pos, k_val, v_val, fill_idxs=fill_indices)
-
-        # Custom code for LSH -- store the key vector hash
-        # k_val_hash = self._hash_fn(k_val)
         
         self.key_hash.scatter_(2, fill_indices.view(1, -1, 1, 1).expand(1, -1, 1, self.lsh_dim), k_val_hash)
-
+        
         return num_insertions
 
     def _eviction_idx(self, input_pos, k_val_hash):
@@ -1531,22 +1514,17 @@ class KVCacheLSH(KVCacheHeadSpecific):
         # 1. Lowest hamming distances have high importance (- self.hamming_dist)
         # 2. Lowest score needs to be > -1 : we evict unfilled tokens first (+ max value such that min score is 0)
         # 3. Save Recent Window (+ inf)
-        
-        # calculate hamming distance between query and key
-        # print(f"[DEBUG] k_val_hash shape: {k_val_hash.shape}, k_val_hash dtype: {k_val_hash.dtype}")
-        # print(f"[DEBUG] self.key_hash shape: {self.key_hash.shape}, self.key_hash dtype: {self.key_hash.dtype}")
+        # calculate hamming distance between stored hash and key hash
         hamming_dist = self._hamming_dist(k_val_hash, self.key_hash)
-        # print(f"[DEBUG] hamming_dist shape: {hamming_dist.shape}, hamming_dist dtype: {hamming_dist.dtype}")
         return (
             (hamming_dist.max() - hamming_dist.to(torch.bfloat16))
             .masked_fill(self.pos >= input_pos - self.recent_window, float("inf"))
             .squeeze(0)
         )
 
-    # def update_state(self, input_pos, k_val, v_val, is_prefill, attn, **kwargs):
-    #     # print(f"[DEBUG] in update_state(), input_pos shape: {input_pos.shape}, input_pos: {input_pos}, k_val shape: {k_val.shape}, k_val dtype: {k_val.dtype}")
-    #     if is_prefill: 
-    #         self.key_hash.copy_(self._hash_fn(self.k_cache))
+    def update_state(self, input_pos, k_val, v_val, is_prefill, attn, **kwargs):
+        if is_prefill: 
+            self.key_hash.copy_(self._hash_fn(self.k_cache))
 
     def _hash_fn(self, x):
         return torch.matmul(x, self.random_proj_matrix).sign() >= 0
