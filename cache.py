@@ -1334,6 +1334,7 @@ class KVCacheAnalysis(KVCacheFull):
             "global_tokens": 0,  # Every token gets saved (no explicit global tokens)
             "max_cache_length": kwargs["max_seq_length"],
             "prompt_compression_strategy": kwargs["prompt_compression_strategy"],
+            "cache_bits": kwargs["cache_bits"],
         }
         super().__init__(max_batch_size, n_heads, head_dim, dtype, **full_kwargs)
 
@@ -1364,7 +1365,8 @@ class KVCacheAnalysis(KVCacheFull):
         self.head_specific = self.compressed.head_specific
 
     def return_attn(self):
-        return self.compressed.return_attn()
+        # return self.compressed.return_attn()
+        return True
 
     def update_kv(self, input_pos, k_val, v_val, is_prefill, **kwargs):
         k, v, mask = super().update_kv(input_pos, k_val, v_val, is_prefill, **kwargs)
