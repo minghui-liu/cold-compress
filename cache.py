@@ -46,6 +46,7 @@ def add_cache_arguments(parser: argparse.ArgumentParser):
         "l2",
         "hybrid",
         "keep_it_odd",
+        "lsh",
     ]
     debug_strategies = [f"debug_{strategy}" for strategy in strategies]
     strategies.extend(debug_strategies)
@@ -116,6 +117,14 @@ def add_cache_arguments(parser: argparse.ArgumentParser):
         type=float,
         help="Mininum fraction of recovered attentions (|compressed_attn - uncompressed_attn| < epsilon). The lower the value, the higher the compression.",
     )
+    
+    # LSH, e.g., LSH, specific hyperparameters (--cache_strategy == "lsh")
+    parser.add_argument(
+        "--lsh_dim",
+        default=16,
+        type=int,
+        help="The dimension of the LSH hash.",
+    )
 
 
 def cache_compatibility(args):
@@ -135,6 +144,11 @@ def cache_compatibility(args):
             assert (
                 length == 1.0
             ), f"{cache_strat} cache strategy only supports max_cache_length=1.0."
+            
+        if cache_strat == "lsh":
+            assert (
+                args.lsh_dim > 0
+            ), "LSH dimension must be a positive integer."
 
     print("The cache argument values you provided appear compatible with each other!")
 
@@ -1439,6 +1453,105 @@ class KVCacheKeepItOdd(KVCacheHeadConstant):
         scores[self.pos[:, 0] % 2 == 1] = 1.0
         scores[self.pos[:, 0] >= input_pos - self.recent_window] = float("inf")
         return scores
+    
+
+class KVCacheLSH(KVCacheHeadSpecific):
+    relevant_kwargs = [
+        "max_cache_length",
+        "max_seq_length",
+        "cache_bits",
+        "global_tokens",
+        "recent_window",
+        "lsh_dim" # new parameter for LSH
+    ]
+
+    def __init__(
+        self, max_batch_size, n_heads, head_dim, dtype=torch.bfloat16, **kwargs
+    ):
+        super().__init__(max_batch_size, n_heads, head_dim, dtype, **kwargs)
+
+        key_hash_shape = (max_batch_size, n_heads, self.max_cache_length, self.lsh_dim)
+        self.register_buffer("key_hash", torch.zeros(key_hash_shape, dtype=torch.bool))
+        self.register_buffer("q_hash", torch.zeros(self.lsh_dim, dtype=torch.int8))
+        self.random_proj_matrix = self.random_proj_matrix = torch.randn((head_dim, self.lsh_dim), dtype=dtype)
+
+    def reset(self):
+        super().reset()
+        self.hash.zero_()
+
+    def _prefill_update(self, input_pos, k_val, v_val, **kwargs):
+        # Custom code for LSH -- store the key vector hash
+        k_val_hash = self._hash_fn(k_val)
+        # print(f"[DEBUG] in _prefill_update(), k_val_hash shape: {k_val_hash.shape}, input_pos shape: {input_pos.shape}, input_pos: {input_pos}")
+        self.key_hash.scatter_(2, input_pos.view(1, 1, -1, 1).expand(1, 1, -1, self.lsh_dim), k_val_hash)
+        return super()._prefill_update(input_pos, k_val, v_val, **kwargs)
+
+    def _decoding_update(self, input_pos, k_val, v_val, **kwargs):
+        # print(f"[DEBUG] in _decoding_update(), input_pos shape: {input_pos.shape}, input_pos: {input_pos}, k_val shape: {k_val.shape}, k_val dtype: {k_val.dtype}")
+        # Same as KVCacheHeadSpecific, but we also update the LSH hash of the keys for decoding
+        
+        # k_val_hash = self._hash_fn(k_val.squeeze(0))
+        k_val_hash = self._hash_fn(k_val)
+        # print(f"[DEBUG] k_val_hash shape: {k_val_hash.shape}, k_val_hash dtype: {k_val_hash.dtype}")
+
+        fill_indices = self._eviction_idx(input_pos, k_val_hash)
+        # print(f"[DEBUG] fill_indices shape: {fill_indices.shape}, fill_indices: {fill_indices}")
+        num_insertions = (
+            (self.pos.gather(2, fill_indices.view(1, -1, 1)).squeeze() == -1)
+            .int()
+            .view(-1)
+        )
+
+        self._fill(input_pos, k_val, v_val, fill_idxs=fill_indices)
+
+        # Custom code for LSH -- store the key vector hash
+        # k_val_hash = self._hash_fn(k_val)
+        
+        self.key_hash.scatter_(2, fill_indices.view(1, -1, 1, 1).expand(1, -1, 1, self.lsh_dim), k_val_hash)
+
+        return num_insertions
+
+    def _eviction_idx(self, input_pos, k_val_hash):
+        scores = self._token_importances(input_pos, k_val_hash)
+
+        if scores.ndim == 1:
+            scores = scores.unsqueeze(0)
+
+        # Protect global tokens
+        scores[:, : self.global_tokens] = float("inf")
+
+        # Evict unfilled slots (pos == -1)
+        scores.masked_fill_(self.pos.view(scores.shape) == -1, float("-inf"))
+
+        # Evict least important token
+        return torch.argmin(scores, dim=-1)
+
+    def _token_importances(self, input_pos, k_val_hash):
+        # 1. Lowest hamming distances have high importance (- self.hamming_dist)
+        # 2. Lowest score needs to be > -1 : we evict unfilled tokens first (+ max value such that min score is 0)
+        # 3. Save Recent Window (+ inf)
+        
+        # calculate hamming distance between query and key
+        # print(f"[DEBUG] k_val_hash shape: {k_val_hash.shape}, k_val_hash dtype: {k_val_hash.dtype}")
+        # print(f"[DEBUG] self.key_hash shape: {self.key_hash.shape}, self.key_hash dtype: {self.key_hash.dtype}")
+        hamming_dist = self._hamming_dist(k_val_hash, self.key_hash)
+        # print(f"[DEBUG] hamming_dist shape: {hamming_dist.shape}, hamming_dist dtype: {hamming_dist.dtype}")
+        return (
+            (hamming_dist.max() - hamming_dist.to(torch.bfloat16))
+            .masked_fill(self.pos >= input_pos - self.recent_window, float("inf"))
+            .squeeze(0)
+        )
+
+    # def update_state(self, input_pos, k_val, v_val, is_prefill, attn, **kwargs):
+    #     # print(f"[DEBUG] in update_state(), input_pos shape: {input_pos.shape}, input_pos: {input_pos}, k_val shape: {k_val.shape}, k_val dtype: {k_val.dtype}")
+    #     if is_prefill: 
+    #         self.key_hash.copy_(self._hash_fn(self.k_cache))
+
+    def _hash_fn(self, x):
+        return torch.matmul(x, self.random_proj_matrix).sign() >= 0
+    
+    def _hamming_dist(self, x, y):
+        return torch.sum(x != y, dim=-1) # keepdim=False
 
 
 def get_cache_constructor(cache_strategy):
@@ -1457,6 +1570,8 @@ def get_cache_constructor(cache_strategy):
         cls = KVCacheHybrid
     elif cache_strategy == "keep_it_odd":
         cls = KVCacheKeepItOdd
+    elif cache_strategy == "lsh":
+        cls = KVCacheLSH
     elif cache_strategy.startswith("debug"):
         cache_strategy = re.sub(r"debug_+", "", cache_strategy).strip()
         relevant_kwargs = get_cache_constructor(cache_strategy)[1] + [
