@@ -1474,12 +1474,11 @@ class KVCacheLSH(KVCacheHeadSpecific):
 
         key_hash_shape = (max_batch_size, n_heads, self.max_cache_length, self.lsh_dim)
         self.register_buffer("key_hash", torch.zeros(key_hash_shape, dtype=torch.bool))
-        self.register_buffer("q_hash", torch.zeros(self.lsh_dim, dtype=torch.int8))
         self.random_proj_matrix = self.random_proj_matrix = torch.randn((head_dim, self.lsh_dim), dtype=dtype)
 
     def reset(self):
         super().reset()
-        self.hash.zero_()
+        self.key_hash.zero_()
 
     def _prefill_update(self, input_pos, k_val, v_val, **kwargs):
         # Custom code for LSH -- store the key vector hash
