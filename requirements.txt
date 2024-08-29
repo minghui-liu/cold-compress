@@ -18,4 +18,5 @@ safetensors
 scikit-learn
 sentencepiece
 tiktoken
+einops
 git+https://github.com/google-research/bleurt.git
