@@ -753,6 +753,42 @@ NOTE: You should only predict the next line in the current file. Do not produce 
             "context": None,
             "labels": ref,
         }
+ 
+    
+class GSM8K(EvaluationTask):
+    """
+    GSM8K (Grade School Math 8K) is a dataset of 8.5K high quality linguistically diverse grade school math word problems. 
+    The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.
+    """
+    DEFAULT_PROMPT_TEMPLATE = "{question}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=210, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["openai/gsm8k", "main"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            # "LLM-Rouge": AutoMetric.from_name("llm-rouge"),
+        }
+        self.validation_split = None
+
+    def prepare_row(self, row: dict):
+        prompt = self.prompt_template.format(question=row['question'])
+        answer = row["answer"]
+
+        return {
+            # "context": None,
+            # "question": None,
+            "prompt": prompt,
+            "labels": answer,
+        }
 
 
 TASK_MAPPING = {
@@ -769,6 +805,7 @@ TASK_MAPPING = {
     "squality": Squality,
     "triviaqa": TriviaQA,
     "truthfulqa": TruthfulQA,
+    "gsm": GSM8K,
 }
 
 
