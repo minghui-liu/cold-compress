@@ -2,5 +2,6 @@
 # https://arxiv.org/abs/2406.11430
 cache_strategy: ["l2"]
 prompt_compression_strategy: ["l2"]
+max_cache_length: [0.3]
 global_tokens: 4
 recent_window: 10
