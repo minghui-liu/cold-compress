@@ -7,7 +7,7 @@ from claudette import Chat, models
 from evaluate import load
 from anthropic import RateLimitError
 import regex as re
-
+from openai import OpenAI
 
 class Metric:
     def __init__(self, **kwargs):
@@ -224,6 +224,39 @@ class LLMRouge(Metric):
         return {"llm_rouge": sum(scores) / len(scores)}
 
 
+class ChatGPTRouge(Metric):
+    def __init__(self, num_retries=5, **kwargs) -> None:
+        assert (
+            "OPENAI_API_KEY" in os.environ
+        ), "Please set the OPENAI_API_KEY environment variable."
+        super().__init__(**kwargs)
+        self.num_retries = num_retries
+
+    def _load_metric(self, **kwargs):
+        self.api_key = os.environ["OPENAI_API_KEY"]
+        self.client = OpenAI(api_key=self.api_key)
+
+    def parse_int(self, text):
+        return int(re.search(r"\d+", text).group())
+
+    def compute(self, prompts, predictions, labels):
+        scores = []
+        for p, ls in zip(predictions, labels):
+            completion = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
+                ],
+                max_tokens=1,
+                n=1,
+                temperature=0.5,
+            )
+            score = completion.choices[0].message.content.strip()
+            score = self.parse_int(score)
+            scores.append(score)
+        return {"chatgpt_rouge": sum(scores) / len(scores)}
+
+
 LLM_JUDGE_TEMPLATE = """You are shown a prompt and asked to assess the quality of an LLM-generated answer on the following dimensions:
 
 ===CRITERIA===
@@ -296,6 +329,63 @@ class LLMJudge(LLMRouge):
             scores.append(score_dict)
 
         return {k: np.mean([s[k] for s in scores]) for k in self.criteria}
+    
+
+class ChatGPTJudge(Metric):
+    def __init__(self, **kwargs) -> None:
+        assert (
+            "OPENAI_API_KEY" in os.environ
+        ), "Please set the OPENAI_API_KEY environment variable."
+        super().__init__(**kwargs)
+
+        self.criteria = list(sorted([k for k in CRITERIA]))
+        self.criteria_def = "\n".join([f"{k}: {CRITERIA[k]}" for k in self.criteria])
+ 
+    def _load_metric(self, **kwargs):
+        self.api_key = os.environ["OPENAI_API_KEY"]
+        self.client = OpenAI(api_key=self.api_key)
+    
+    def parse_scorecard(self, scorecard):
+        try:
+            return {
+                k: int(v)
+                for k, v in dict(
+                    re.findall(rf"({'|'.join(self.criteria)})\W+(\d+)", scorecard)
+                ).items()
+            }
+        except Exception as e:
+            print(e)
+            raise Exception(
+                f"Could not parse LLM-generated scorecard for {self.__class__}:\n{scorecard}"
+            )
+
+    def claudette_scorecard(self, prompt, prediction):
+        prompt = LLM_JUDGE_TEMPLATE.format(
+            criteria=self.criteria_def, prompt=prompt, prediction=prediction
+        )
+        completion = self.client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=20,
+            n=1,
+            temperature=0.5,
+        )
+        
+        scorecard = completion.choices[0].message.content.strip()
+
+        return scorecard
+
+    def compute(self, prompts, predictions, labels):
+        scores = []
+
+        for prompt, pred in zip(prompts, predictions):
+            scorecard = self.claudette_scorecard(prompt, pred)
+            score_dict = self.parse_scorecard(scorecard)
+            scores.append(score_dict)
+
+        return {k: np.mean([s[k] for s in scores]) for k in self.criteria}
 
 
 METRIC_MAPPING = {
@@ -305,7 +395,9 @@ METRIC_MAPPING = {
     "exact_match": ExactMatchScore,
     "levenshtein": LevenshteinDistance,
     "llm-rouge": LLMRouge,
+    "chatgpt-rouge": ChatGPTRouge,
     "llm-as-a-judge": LLMJudge,
+    "chatgpt-as-a-judge": ChatGPTJudge,
     "rouge": Rouge,
     "ruler-string-match": RulerStringMatch,
 }

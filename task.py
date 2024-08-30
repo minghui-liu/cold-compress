@@ -775,7 +775,8 @@ class GSM8K(EvaluationTask):
         self.metrics = {
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
-            # "LLM-Rouge": AutoMetric.from_name("llm-rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
         }
         self.validation_split = None
 
