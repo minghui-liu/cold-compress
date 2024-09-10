@@ -340,6 +340,8 @@ class ChatGPTJudge(Metric):
 
         self.criteria = list(sorted([k for k in CRITERIA]))
         self.criteria_def = "\n".join([f"{k}: {CRITERIA[k]}" for k in self.criteria])
+
+        self.reminder = """\n\nRemember to respond with format "criteria: score" for each criteria with a newline for each criteria. Assign a score from 1-5 where 1 is the worst and 5 is the best based on how well the answer meets the criteria. The score must be an integer from 1-5.\n"""
  
     def _load_metric(self, **kwargs):
         self.api_key = os.environ["OPENAI_API_KEY"]
@@ -360,7 +362,7 @@ class ChatGPTJudge(Metric):
                 # in the order of the criteria
                 numbers = re.findall(r"\d+", scorecard)
                 if len(numbers) < len(self.criteria):
-                    raise Exception("Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
+                    raise Exception(f"Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
                 for i, k in enumerate(self.criteria):
                     score_dict[k] = int(numbers[i])
             return score_dict
@@ -373,7 +375,7 @@ class ChatGPTJudge(Metric):
     def claudette_scorecard(self, prompt, prediction):
         prompt = LLM_JUDGE_TEMPLATE.format(
             criteria=self.criteria_def, prompt=prompt, prediction=prediction
-        )
+        ) + self.reminder
         completion = self.client.chat.completions.create(
             model="gpt-4o",
             messages=[

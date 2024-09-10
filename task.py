@@ -790,6 +790,92 @@ class GSM8K(EvaluationTask):
             "prompt": prompt,
             "labels": answer,
         }
+    
+   
+class GSM8KDEBUG(EvaluationTask):
+    """
+    GSM8K (Grade School Math 8K) is a dataset of 8.5K high quality linguistically diverse grade school math word problems. 
+    The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.
+    """
+    DEFAULT_PROMPT_TEMPLATE = "{question}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=210, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["openai/gsm8k", "main"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+        }
+        self.validation_split = None
+    
+    def _download(self):
+        # Can over-write if not using HF
+        self.dataset = load_dataset(*self.hf_args)
+        self.dataset['train'] = self.dataset['train'].select(range(100))
+        self.dataset['test'] = self.dataset['test'].select(range(20))
+
+    def prepare_row(self, row: dict):
+        prompt = self.prompt_template.format(question=row['question'])
+        answer = row["answer"]
+
+        return {
+            # "context": None,
+            # "question": None,
+            "prompt": prompt,
+            "labels": answer,
+        }
+
+
+
+class KQA(EvaluationTask):
+    DEFAULT_PROMPT_TEMPLATE = """You will be shown a question along with several possible answers. Please carefully read the question and the answer choices and pick the best answer.
+IMPORTANT: You should simply provide the letter corresponding to the answer choice that you picked. You do not need to write out the entire answer or provide any explanation.
+
+====QUESTION====
+{question}
+
+====ANSWER CHOICES====
+{choices}"""
+
+    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1, **kwargs):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["drt/kqa_pro", "train_val"],
+            **kwargs,
+        )
+
+        self.test_split = "validation"
+
+        self.metrics = {
+            "ExactMatch": AutoMetric.from_name("exact_match"),
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+            "Levenshtein": AutoMetric.from_name("levenshtein"),
+        }
+        self.mandatory_cols = self.mandatory_cols.copy() + ["num_choices"]
+
+    def prepare_row(self, row: dict):
+        question = row["question"]
+        choices = row["choices"]
+        answer = row["answer"]
+
+        prompt = self.prompt_template.format(question=question, choices=choices)
+
+        return {
+            "prompt": prompt,
+            "question": question,
+            "context": choices,
+            "labels": answer,
+        }
 
 
 TASK_MAPPING = {
@@ -807,6 +893,8 @@ TASK_MAPPING = {
     "triviaqa": TriviaQA,
     "truthfulqa": TruthfulQA,
     "gsm": GSM8K,
+    "gsm_debug": GSM8KDEBUG,
+    "kqa": KQA,
 }
 
 
