@@ -861,7 +861,6 @@ IMPORTANT: You should simply provide the answer choice that you picked verbatim.
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
             "Levenshtein": AutoMetric.from_name("levenshtein"),
         }
-        self.mandatory_cols = self.mandatory_cols.copy() + ["num_choices"]
 
     def prepare_row(self, row: dict):
         question = row["question"]
