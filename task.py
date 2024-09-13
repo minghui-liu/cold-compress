@@ -838,7 +838,7 @@ class GSM8KDEBUG(EvaluationTask):
 
 class KQA(EvaluationTask):
     DEFAULT_PROMPT_TEMPLATE = """You will be shown a question along with several possible answers. Please carefully read the question and the answer choices and pick the best answer.
-IMPORTANT: You should simply provide the letter corresponding to the answer choice that you picked. You do not need to write out the entire answer or provide any explanation.
+IMPORTANT: You should simply provide the answer choice that you picked verbatim. You do not need to provide any explanation.
 
 ====QUESTION====
 {question}
