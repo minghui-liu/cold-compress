@@ -34,6 +34,7 @@ class EvaluationTask(ABC):
         self.tokenizer = tokenizer
         self.hf_args = hf_args
         self.num_samples = kwargs.pop("num_samples", -1)
+        self.random_seed = kwargs.pop("random_seed", 0)
 
         # Download the dataset
         self._download()
@@ -74,6 +75,7 @@ class EvaluationTask(ABC):
                 n = min(self.num_samples, len(filtered_data))
                 print(f"Randomly sample {n} examples")
                 # Use a fixed seed for reproducibility
+                random.seed(self.random_seed)
                 inds = random.Random(n).sample(range(len(filtered_data)), n)
                 filtered_data = filtered_data.select(inds)
 
