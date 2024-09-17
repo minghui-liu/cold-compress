@@ -23,3 +23,4 @@ original_adapter.py
 torch_compile_debug
 results
 submit.sh
+submit*.sh
