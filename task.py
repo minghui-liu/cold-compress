@@ -5,11 +5,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 
 from metric import AutoMetric
 from tokenizer import get_tokenizer
-
+import json
 
 class EvaluationTask(ABC):
     train_split: str = "train"
@@ -838,44 +838,104 @@ class GSM8KDEBUG(EvaluationTask):
 
 
 
-class KQA(EvaluationTask):
-    DEFAULT_PROMPT_TEMPLATE = """You will be shown a question along with several possible answers. Please carefully read the question and the answer choices and pick the best answer.
-IMPORTANT: You should simply provide the answer choice that you picked verbatim. You do not need to provide any explanation.
+class MEDQA(EvaluationTask):
+    DEFAULT_PROMPT_TEMPLATE = """{system}
 
 ====QUESTION====
 {question}
+"""
 
-====ANSWER CHOICES====
-{choices}"""
+    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=3000, **kwargs):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=None,
+            **kwargs,
+        )
+
+        self.test_split = "test"
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+        }
+        
+    # def _download(self):
+    #     # Can over-write if not using HF
+    #     self.json_path = Path(__file__).parent / "data" / "medqa_processed.jsonl"
+    #     ds_dict = {"system" : [], "question": [], "answer": []}
+    #     with open(self.json_path, "r") as f:
+    #         for line in f:
+    #             # read line as json
+    #             json_obj = json.loads(line)
+    #             # row = {"system": json_obj["conversations"][0]["value"], "question": json_obj["conversations"][1]["value"], "answer": json_obj["conversations"][2]["value"]}
+    #             ds_dict["system"].append(json_obj["conversations"][0]["value"])
+    #             ds_dict["question"].append(json_obj["conversations"][1]["value"])
+    #             ds_dict["answer"].append(json_obj["conversations"][2]["value"])
+        
+    #     self.dataset = Dataset.from_dict(ds_dict)
+    #     self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
+    #     print(f"[DEBUG] dataset: {self.dataset}")
+    
+    def _download(self):
+        self.json_path = Path(__file__).parent / "data" / "medqa.json"
+        data_files = {'test': [str(self.json_path)]}
+        self.dataset = load_dataset("json", data_files=data_files, split="test")
+        self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
+    
+    def prepare_row(self, row: dict):
+        system = row["system"]
+        question = row["question"]
+        answer = row["answer"]
+        prompt = self.prompt_template.format(system=system, question=question)
+
+        return {
+            "prompt": prompt,
+            "question": question,
+            "labels": answer,
+        }
+        
+
+
+class MEDQA_MC(EvaluationTask):
+    DEFAULT_PROMPT_TEMPLATE = """You are a expert medical professional specializing in diagnosing and recommending treatments for various conditions. Carefully assess the patient's symptoms, medical history, and clinical details to determine the most appropriate treatment. Choose an answer from the choices given i nthe question. IMPORTANT: Provide only the letter corresponding to your chosen answer. Do not write out the full answer or give any explanation.
+    
+====QUESTION====
+{question}
+"""
 
     def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1, **kwargs):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["drt/kqa_pro", "train_val"],
+            hf_args=None,
             **kwargs,
         )
 
-        self.test_split = "validation"
+        self.test_split = "test"
 
         self.metrics = {
-            "ExactMatch": AutoMetric.from_name("exact_match"),
-            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
-            "Levenshtein": AutoMetric.from_name("levenshtein"),
+            "Accuracy": AutoMetric.from_name("accuracy"),
         }
-
+    
+    def _download(self):
+        self.json_path = Path(__file__).parent / "data" / "medqa.json"
+        data_files = {'test': [str(self.json_path)]}
+        self.dataset = load_dataset("json", data_files=data_files, split="test")
+        self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
+       
     def prepare_row(self, row: dict):
+        system = row["system"]
         question = row["question"]
-        choices = row["choices"]
-        answer = row["answer"]
-
-        prompt = self.prompt_template.format(question=question, choices=choices)
+        label = row["label"]
+        prompt = self.prompt_template.format(system=system, question=question)
 
         return {
             "prompt": prompt,
             "question": question,
-            "context": choices,
-            "labels": answer,
+            "labels": label,
         }
 
 
@@ -895,7 +955,8 @@ TASK_MAPPING = {
     "truthfulqa": TruthfulQA,
     "gsm": GSM8K,
     "gsm_debug": GSM8KDEBUG,
-    "kqa": KQA,
+    "medqa": MEDQA,
+    "medqa_mc": MEDQA_MC,
 }
 
 
