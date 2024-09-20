@@ -845,7 +845,7 @@ class MEDQA(EvaluationTask):
 {question}
 """
 
-    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=3000, **kwargs):
+    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs):
         super().__init__(
             prompt_template,
             max_tokens,
