@@ -926,7 +926,7 @@ class GSM8K_MC(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["guipenedo/gsm8k-mc", "test"],
+            hf_args=["guipenedo/gsm8k-mc"],
             **kwargs,
         )
 
