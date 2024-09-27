@@ -901,8 +901,57 @@ class GSM8K(EvaluationTask):
             "prompt": prompt,
             "labels": answer,
         }
+
+
+class GSM8K_MC(EvaluationTask):
+    """
+    GSM8K (Grade School Math 8K) is a dataset of 8.5K high quality linguistically diverse grade school math word problems. 
+    The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.
+    """
+    DEFAULT_PROMPT_TEMPLATE = """{question}
     
-   
+    Choices:
+    A. {choice_A}
+    B. {choice_B}
+    C. {choice_C}
+    D. {choice_D}
+
+    Choose an answer from the choices given. IMPORTANT: Provide only the letter corresponding to your chosen answer. Do not write out the full answer or give any explanation.
+    """
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["guipenedo/gsm8k-mc", "test"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "Accuracy": AutoMetric.from_name("accuracy"),
+            "ExactMatch": AutoMetric.from_name("exact_match"),
+        }
+        self.validation_split = None
+
+    def prepare_row(self, row: dict):
+        choice_a = row["A"]
+        choice_b = row["B"]
+        choice_c = row["C"]
+        choice_d = row["D"]
+        question = row["question"]
+        answer = row["answer"]
+        prompt = self.prompt_template.format(question=question, choice_A=choice_a, choice_B=choice_b, choice_C=choice_c, choice_D=choice_d)
+
+        return {
+            "context": None,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
+
 class GSM8KDEBUG(EvaluationTask):
     """
     GSM8K (Grade School Math 8K) is a dataset of 8.5K high quality linguistically diverse grade school math word problems. 
@@ -1009,7 +1058,7 @@ class MEDQA(EvaluationTask):
 
 
 class MEDQA_MC(EvaluationTask):
-    DEFAULT_PROMPT_TEMPLATE = """You are a expert medical professional specializing in diagnosing and recommending treatments for various conditions. Carefully assess the patient's symptoms, medical history, and clinical details to determine the most appropriate treatment. Choose an answer from the choices given i nthe question. IMPORTANT: Provide only the letter corresponding to your chosen answer. Do not write out the full answer or give any explanation.
+    DEFAULT_PROMPT_TEMPLATE = """You are a expert medical professional specializing in diagnosing and recommending treatments for various conditions. Carefully assess the patient's symptoms, medical history, and clinical details to determine the most appropriate treatment. Choose an answer from the choices given in the question. IMPORTANT: Provide only the letter corresponding to your chosen answer. Do not write out the full answer or give any explanation.
     
 ====QUESTION====
 {question}
@@ -1064,6 +1113,7 @@ TASK_MAPPING = {
     "truthfulqa": TruthfulQA,
     "gsm": GSM8K,
     "gsm_debug": GSM8KDEBUG,
+    "gsm_mc": GSM8K_MC,
     "medqa": MEDQA,
     "medqa_mc": MEDQA_MC,
 }
