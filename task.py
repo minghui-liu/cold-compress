@@ -907,6 +907,7 @@ class GSM8K_MC(EvaluationTask):
     """
     GSM8K (Grade School Math 8K) is a dataset of 8.5K high quality linguistically diverse grade school math word problems. 
     The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.
+    This task is the multiple choice version of GSM8K.
     """
     DEFAULT_PROMPT_TEMPLATE = """{question}
     
@@ -1095,6 +1096,41 @@ class MEDQA_MC(EvaluationTask):
             "question": question,
             "labels": label,
         }
+    
+      
+class PasskeyRetrieval(EvaluationTask):
+    """
+    LLama3 1024 pass key retrieval eval task
+    """
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=10, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["nanotron/llama3-1024-passkey-retrieval-eval"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "train"
+
+    def prepare_row(self, row: dict):
+        task_input = row["prompt"]
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["answer"]  # List[str]
+
+        return {
+            "context": "",
+            "question": "",
+            "prompt": prompt,
+            "labels": answer,
+        }
 
 
 TASK_MAPPING = {
@@ -1116,6 +1152,7 @@ TASK_MAPPING = {
     "gsm_mc": GSM8K_MC,
     "medqa": MEDQA,
     "medqa_mc": MEDQA_MC,
+    "passkey": PasskeyRetrieval,
 }
 
 
