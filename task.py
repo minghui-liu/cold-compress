@@ -1129,7 +1129,7 @@ class PasskeyRetrieval(EvaluationTask):
             "context": "",
             "question": "",
             "prompt": prompt,
-            "labels": answer,
+            "labels": str(answer),
         }
 
 
