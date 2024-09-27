@@ -941,8 +941,8 @@ class GSM8K_MC(EvaluationTask):
         choice_b = row["B"]
         choice_c = row["C"]
         choice_d = row["D"]
-        question = row["question"]
-        answer = row["answer"]
+        question = row["Question"]
+        answer = row["Answer"]
         prompt = self.prompt_template.format(question=question, choice_A=choice_a, choice_B=choice_b, choice_C=choice_c, choice_D=choice_d)
 
         return {
