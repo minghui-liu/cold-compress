@@ -630,18 +630,12 @@ class RulerNIAH(EvaluationTask):
 
     def prepare_row(self, row: dict):
         task_input = row["input"]
-
-        question = (
-            "The special magic number for fair-sprout mentioned in the provided text is"
-        )
-        context = task_input
-
         prompt = self.prompt_template.format(task_input=task_input)
         answer = row["outputs"]  # List[str]
 
         return {
-            "context": context,
-            "question": question,
+            "context": "",
+            "question": "",
             "prompt": prompt,
             "labels": answer,
         }
