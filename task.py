@@ -606,7 +606,7 @@ class PG19(EvaluationTask):
         }
 
 
-class RulerNIAH8K(EvaluationTask):
+class RulerNIAH(EvaluationTask):
     """
     RULER Multi-keys Needle-in-a-haystack (NIAH) task with 8k context length. (context length can be adjusted as needed)
     """
@@ -721,6 +721,46 @@ class RulerVT(EvaluationTask):
         }
 
 
+class RulerVT4K(EvaluationTask):
+    """
+    RULER Multi-hop Tracing: Variable Tracking (VT) task with 4k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=30, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["rbiswasfc/ruler", "vt_4k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+
+
+
 class RulerCWE(EvaluationTask):
     """
     RULER Aggregation: Common Words (CWE) task with 8k context length. (context length can be adjusted as needed)
@@ -735,6 +775,46 @@ class RulerCWE(EvaluationTask):
             prompt_template,
             max_tokens,
             hf_args=["rbiswasfc/ruler", "cwe_8k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+
+
+
+class RulerCWE4K(EvaluationTask):
+    """
+    RULER Aggregation: Common Words (CWE) task with 4k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=120, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["rbiswasfc/ruler", "cwe_4k"],
             **kwargs,
         )
 
@@ -982,8 +1062,8 @@ TASK_MAPPING = {
     "repobench": RepoBench,
     "rulerqa": RulerQA,
     "rulerniah": RulerNIAH4K,
-    "rulervt": RulerVT,
-    "rulercwe": RulerCWE,
+    "rulervt": RulerVT4K,
+    "rulercwe": RulerCWE4K,
     "scrollsquality": ScrollsQuality,
     "squality": Squality,
     "triviaqa": TriviaQA,
