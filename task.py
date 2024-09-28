@@ -1105,7 +1105,7 @@ class PasskeyRetrieval(EvaluationTask):
     DEFAULT_PROMPT_TEMPLATE = "{task_input}"
 
     def __init__(
-        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=10, **kwargs
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=100, **kwargs
     ):
         super().__init__(
             prompt_template,
