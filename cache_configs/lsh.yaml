@@ -3,4 +3,3 @@
 cache_strategy: ["lsh"]
 global_tokens: 4
 recent_window: 10
-lsh_dim: 16
