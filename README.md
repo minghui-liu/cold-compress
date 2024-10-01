@@ -31,7 +31,6 @@ python generate.py --cache_strategy lsh --lsh_dim 8 --prompt "What does the llam
 This will generate a response from a compiled Llama-3 with 8-bit LSH eviction (`--cache_strategy lsh --lsh_dim 8`).
 
 
-
 ## Run a single experiment using a cache config
 
 ```
@@ -94,3 +93,6 @@ To run the `common words` long context experiments:
 python parallelize_evals.py --command_file experiments/cwe.txt --num_gpus 8
 ```
 
+# Visualizations
+
+To generate visualizations used in the paper, please refer to instructions in `VISUALIZATIONS.ipynb`.
