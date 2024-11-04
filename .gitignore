@@ -24,3 +24,6 @@ torch_compile_debug
 results
 submit.sh
 submit*.sh
+
+.env
+.cache/

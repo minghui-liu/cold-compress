@@ -1004,14 +1004,16 @@ class MEDQA(EvaluationTask):
 {question}
 """
 
-    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs):
+    def __init__(self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1, **kwargs):
         super().__init__(
             prompt_template,
             max_tokens,
             hf_args=None,
+            hf_args=None,
             **kwargs,
         )
 
+        self.test_split = "test"
         self.test_split = "test"
 
         self.metrics = {
@@ -1020,30 +1022,15 @@ class MEDQA(EvaluationTask):
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
             "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
         }
-        
-    # def _download(self):
-    #     # Can over-write if not using HF
-    #     self.json_path = Path(__file__).parent / "data" / "medqa_processed.jsonl"
-    #     ds_dict = {"system" : [], "question": [], "answer": []}
-    #     with open(self.json_path, "r") as f:
-    #         for line in f:
-    #             # read line as json
-    #             json_obj = json.loads(line)
-    #             # row = {"system": json_obj["conversations"][0]["value"], "question": json_obj["conversations"][1]["value"], "answer": json_obj["conversations"][2]["value"]}
-    #             ds_dict["system"].append(json_obj["conversations"][0]["value"])
-    #             ds_dict["question"].append(json_obj["conversations"][1]["value"])
-    #             ds_dict["answer"].append(json_obj["conversations"][2]["value"])
-        
-    #     self.dataset = Dataset.from_dict(ds_dict)
-    #     self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
-    #     print(f"[DEBUG] dataset: {self.dataset}")
-    
+
     def _download(self):
-        self.json_path = Path(__file__).parent / "data" / "medqa.json"
-        data_files = {'test': [str(self.json_path)]}
-        self.dataset = load_dataset("json", data_files=data_files, split="test")
-        self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
-    
+        # Use data/medqa_processed.jsonl
+        self.json_file = Path(__file__).parent / "data" / "medqa_processed.jsonl"
+        self.dataset = {}
+        self.dataset["test"] = pd.read_json(self.json_file, lines=True)
+        print(self.dataset)
+
+
     def prepare_row(self, row: dict):
         system = row["system"]
         question = row["question"]

@@ -8,8 +8,7 @@ cd cold-compress
 pip install --user -r requirements.txt --extra-index-url https://download.pytorch.org/whl/nightly/
 
 # huggingface login with env variable
-
-export HUGGINGFACE_TOKEN=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
+export $(grep -v '^#' .env | xargs -d '\n')
 huggingface-cli login --token $HUGGINGFACE_TOKEN --add-to-git-credential
 
 # setup llama3 
