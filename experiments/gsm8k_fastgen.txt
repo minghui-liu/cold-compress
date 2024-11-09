@@ -1,0 +1,5 @@
+python eval.py --cache_config fastgen --min_recovery_frac 0.9 --tasks gsm --feed_long_prompts
+python eval.py --cache_config fastgen --min_recovery_frac 0.7 --tasks gsm --feed_long_prompts
+python eval.py --cache_config fastgen --min_recovery_frac 0.5 --tasks gsm --feed_long_prompts
+python eval.py --cache_config fastgen --min_recovery_frac 0.3 --tasks gsm --feed_long_prompts
+python eval.py --cache_config fastgen --min_recovery_frac 0.1 --tasks gsm --feed_long_prompts
