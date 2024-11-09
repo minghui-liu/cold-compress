@@ -1023,12 +1023,10 @@ class MEDQA(EvaluationTask):
         }
 
     def _download(self):
-        # Use data/medqa_processed.jsonl
-        self.json_file = Path(__file__).parent / "data" / "medqa_processed.jsonl"
-        self.dataset = {}
-        self.dataset["test"] = pd.read_json(self.json_file, lines=True)
-        print(self.dataset)
-
+        self.json_path = Path(__file__).parent / "data" / "medqa.json"
+        data_files = {'test': [str(self.json_path)]}
+        self.dataset = load_dataset("json", data_files=data_files, split="test")
+        self.dataset = self.dataset.train_test_split(test_size=0.1, seed=42)
 
     def prepare_row(self, row: dict):
         system = row["system"]
