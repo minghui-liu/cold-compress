@@ -1,5 +1,0 @@
-python eval.py --cache_config heavy_hitter --max_cache_length 0.1 --tasks gsm --feed_long_prompts
-python eval.py --cache_config heavy_hitter --max_cache_length 0.3 --tasks gsm --feed_long_prompts
-python eval.py --cache_config heavy_hitter --max_cache_length 0.5 --tasks gsm --feed_long_prompts
-python eval.py --cache_config heavy_hitter --max_cache_length 0.7 --tasks gsm --feed_long_prompts
-python eval.py --cache_config heavy_hitter --max_cache_length 0.9 --tasks gsm --feed_long_prompts
