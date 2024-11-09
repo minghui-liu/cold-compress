@@ -8,7 +8,6 @@ slurm-*.out
 slurm_logs/
 
 # data
-data
 checkpoints
 out
 !data/shakespeare/prepare.py
