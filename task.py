@@ -1009,7 +1009,6 @@ class MEDQA(EvaluationTask):
             prompt_template,
             max_tokens,
             hf_args=None,
-            hf_args=None,
             **kwargs,
         )
 
