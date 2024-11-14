@@ -1117,6 +1117,54 @@ class PasskeyRetrieval(EvaluationTask):
         }
 
 
+class PassageRetrieval(EvaluationTask):
+    """
+    LongBench passage retrieval eval task
+    """
+    DEFAULT_PROMPT_TEMPLATE = """Given 30 English Wikipedia paragraphs numbered from 1 to 30, please determine which paragraph the given summary corresponds to. 
+====QUESTION====
+
+{context}
+    
+====Summary====
+
+{task_input}
+
+Please provide the paragraph number that best matches the summary in the format "Paragraph X".
+"""
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=5, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["THUDM/LongBench", "passage_retrieval_en"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "Accuracy": AutoMetric.from_name("accuracy"),
+            "ExactMatch": AutoMetric.from_name("exact_match"),
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "test"
+        
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+        context = row["context"]
+
+        prompt = self.prompt_template.format(task_input=task_input, context=context)
+        answer = row["answers"]
+
+        return {
+            "context": context,
+            "question": task_input,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
+
 TASK_MAPPING = {
     "dolomites": Dolomites,
     "musique": Musique,
@@ -1137,6 +1185,7 @@ TASK_MAPPING = {
     "medqa": MEDQA,
     "medqa_mc": MEDQA_MC,
     "passkey": PasskeyRetrieval,
+    "passage": PassageRetrieval,
 }
 
 
