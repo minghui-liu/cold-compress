@@ -1155,14 +1155,15 @@ class KVCacheHybrid(KVCacheHeavyHitter):
 
         # Only build masks as needed
         special_mask = punc_mask = None
-        if self.requires_special:
+        # if self.requires_special:
+        if any(["special" in s["strategy"] for s in self.hybrid_strategies]):
             special_mask = self.build_special_ids_mask(input_ids)
             self.num_special = special_mask.sum()
 
-        if self.requires_punc:
+        # if self.requires_punc:
+        if any(["punc" in s["strategy"] for s in self.hybrid_strategies]):
             punc_mask = self.build_punc_ids_mask(input_ids)
             self.num_punc = punc_mask.sum()
-
         cum_attn = (
             None  # Only aggregate attention if its needed by one of the strategies
         )
