@@ -1155,7 +1155,7 @@ Please provide the paragraph number that best matches the summary in the format 
         context = row["context"]
 
         prompt = self.prompt_template.format(task_input=task_input, context=context)
-        answer = row["answers"]
+        answer = row["answers"][0]
 
         return {
             "context": context,
