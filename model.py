@@ -101,7 +101,7 @@ transformer_configs = {
     "stories15M": dict(n_layer=6, n_head=6, dim=288),
     "stories110M": dict(n_layer=12, n_head=12, dim=768),
     "Meta-Llama-3-8B-Instruct": dict(
-        block_size=8192,
+        block_size=16384, # default is 8192, changed to 16384 for long-bench test
         n_layer=32,
         n_head=32,
         n_local_heads=8,
@@ -109,7 +109,7 @@ transformer_configs = {
         intermediate_size=14336,
         vocab_size=128256,
         rope_base=500000,
-        max_length=8192,
+        max_length=16384, # default is 8192, changed to 16384 for long-bench test
     ),
     "Meta-Llama-3.1-8B-Instruct": dict(
         block_size=131072,
