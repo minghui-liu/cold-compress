@@ -717,7 +717,8 @@ class KVCacheHeavyHitter(KVCacheHeadSpecific):
             attn = attn.squeeze(0).sum(dim=1) / (seq_len - input_pos)
 
         attn = attn.view(1, self.n_heads, -1, 1)
-        attn = (attn >= 1 / self.cache_cts).int() if self.attn_thresholding else attn
+        # attn = (attn >= 1 / self.cache_cts).int() if self.attn_thresholding else attn
+        attn = (attn >= 1 / self.cache_cts) if self.attn_thresholding else attn
 
         # Torch.compile doesn't support dyanmic slicing so we need to zero-pad to full dimension
         padding = max(self.max_cache_length - seq_len, 0)
