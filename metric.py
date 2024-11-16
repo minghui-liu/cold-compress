@@ -362,7 +362,8 @@ class ChatGPTJudge(Metric):
                 # in the order of the criteria
                 numbers = re.findall(r"\d+", scorecard)
                 if len(numbers) < len(self.criteria):
-                    raise Exception(f"Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
+                    # raise Exception(f"Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
+                    numbers += [1] * (len(self.criteria) - len(numbers))
                 for i, k in enumerate(self.criteria):
                     score_dict[k] = int(numbers[i])
             return score_dict
@@ -395,6 +396,11 @@ class ChatGPTJudge(Metric):
 
         for prompt, pred in zip(prompts, predictions):
             scorecard = self.claudette_scorecard(prompt, pred)
+
+            numbers = re.findall(r"\d+", scorecard)
+            if len(numbers) < len(self.criteria):
+                print(f"[DEBUG] [Prompt]: \n{prompt}\n [Prediction]: \n{pred}\n [Scorecard]: \n{scorecard}")
+                
             score_dict = self.parse_scorecard(scorecard)
             scores.append(score_dict)
 
