@@ -1121,7 +1121,8 @@ class PassageRetrieval(EvaluationTask):
     """
     LongBench passage retrieval eval task
     """
-    DEFAULT_PROMPT_TEMPLATE = """Given 30 English Wikipedia paragraphs numbered from 1 to 30, please determine which paragraph the given summary corresponds to. 
+    
+    OLD_PROMPT_TEMPLATE = """Given 30 English Wikipedia paragraphs numbered from 1 to 30, please determine which paragraph the given summary corresponds to. 
 ====QUESTION====
 
 {context}
@@ -1133,8 +1134,23 @@ class PassageRetrieval(EvaluationTask):
 Please provide the paragraph number that best matches the summary in the format "Paragraph X".
 """
 
+    DEFAULT_PROMPT_TEMPLATE = """Here are 30 paragraphs from Wikipedia, along with an abstract. Please
+determine which paragraph the abstract is from.
+
+====Paragraphs====
+{context}
+
+The following is an abstract. 
+
+====Abstract====
+{task_input}
+
+Please enter the number of the paragraph that the abstract is from. The answer format must be like “Paragraph 1”, “Paragraph 2”, etc.
+The answer is:
+"""
+
     def __init__(
-        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=5, **kwargs
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=30, **kwargs
     ):
         super().__init__(
             prompt_template,
@@ -1165,6 +1181,51 @@ Please provide the paragraph number that best matches the summary in the format 
         }
     
 
+class GovReport(EvaluationTask):
+    """
+    LongBench government report eval task
+    """
+    
+    DEFAULT_PROMPT_TEMPLATE = """You are given a report by a government agency. Write a one-page summary of the report.
+
+====Report====
+{context}
+
+Now, write a one-page summary of the report.
+
+====Summary====
+"""
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["THUDM/LongBench", "gov_report"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+        }
+        self.test_split = "test"
+
+    def prepare_row(self, row: dict):
+        context = row["context"]
+        prompt = self.prompt_template.format(context=context)
+        answer = row["answers"][0]
+
+        return {
+            "context": context,
+            "question": None,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
+
 TASK_MAPPING = {
     "dolomites": Dolomites,
     "musique": Musique,
@@ -1186,6 +1247,7 @@ TASK_MAPPING = {
     "medqa_mc": MEDQA_MC,
     "passkey": PasskeyRetrieval,
     "passage": PassageRetrieval,
+    "govreport": GovReport,
 }
 
 
