@@ -1298,6 +1298,7 @@ TASK_MAPPING = {
     "passkey": PasskeyRetrieval,
     "passage": PassageRetrieval,
     "govreport": GovReport,
+    "qmsum": QMSum,
 }
 
 
