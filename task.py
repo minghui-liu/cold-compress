@@ -1226,6 +1226,56 @@ Now, write a one-page summary of the report.
         }
     
 
+class QMSum(EvaluationTask):
+    """
+    LongBench QMSum eval task
+    """
+    
+    DEFAULT_PROMPT_TEMPLATE = """You are given a meeting transcript and a query containing a question or instruction. Answer the query in one or more sentences.
+
+Transcript:
+{context}
+
+Now, answer the query based on the above meeting transcript in one or more sentences.
+
+Query:
+{input}
+
+Answer:
+"""
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["THUDM/LongBench", "qmsum"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+        }
+        self.test_split = "test"
+
+    def prepare_row(self, row: dict):
+        context = row["context"]
+        input = row["input"]
+        prompt = self.prompt_template.format(context=context, input=input)
+        answer = row["answers"][0]
+
+        return {
+            "context": context,
+            "question": input,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
+
+
 TASK_MAPPING = {
     "dolomites": Dolomites,
     "musique": Musique,
