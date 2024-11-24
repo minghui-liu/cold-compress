@@ -1275,6 +1275,48 @@ Answer:
         }
     
 
+class MultiNews(EvaluationTask):
+    """
+    LongBench MultiNews eval task
+    """
+    
+    DEFAULT_PROMPT_TEMPLATE = """You are given several news passages. Write a one-page summary of all news.
+
+News:
+{context}
+
+Now, write a one-page summary of all the news. Summary:
+"""
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["THUDM/LongBench", "multi_news"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+        }
+        self.test_split = "test"
+
+    def prepare_row(self, row: dict):
+        context = row["context"]
+        prompt = self.prompt_template.format(context=context, input=input)
+        answer = row["answers"][0]
+
+        return {
+            "context": context,
+            "question": None,
+            "prompt": prompt,
+            "labels": answer,
+        }
 
 TASK_MAPPING = {
     "dolomites": Dolomites,
@@ -1299,6 +1341,7 @@ TASK_MAPPING = {
     "passage": PassageRetrieval,
     "govreport": GovReport,
     "qmsum": QMSum,
+    "multinews": MultiNews,
 }
 
 
