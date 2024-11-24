@@ -112,7 +112,8 @@ transformer_configs = {
         max_length=16384, # default is 8192, changed to 16384 for long-bench test
     ),
     "Meta-Llama-3.1-8B-Instruct": dict(
-        block_size=131072,
+        # block_size=131072,
+        block_size=16384, # default is 131072, changed to 16384 for long-bench test
         n_layer=32,
         n_head=32,
         n_local_heads=8,
@@ -120,7 +121,8 @@ transformer_configs = {
         intermediate_size=14336,
         vocab_size=128256,
         rope_base=500000,
-        max_length=131072,
+        # max_length=131072,
+        max_length=16384, # default is 131072, changed to 16384 for long-bench test
         rope_scaling={
             "factor": 8.0,
             "low_freq_factor": 1.0,
