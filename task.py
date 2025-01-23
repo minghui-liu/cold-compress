@@ -1318,6 +1318,36 @@ Now, write a one-page summary of all the news. Summary:
             "labels": answer,
         }
 
+class LCC(EvaluationTask):
+    DEFAULT_PROMPT_TEMPLATE = """Please complete the code given below.
+{context}
+Next line of code:
+"""
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1024, **kwargs
+    ):
+        super().__init__(
+            prompt_template, max_tokens, hf_args=["THUDM/LongBench"], **kwargs
+        )
+
+        self.metrics = { 
+            "ExactMatch": AutoMetric.from_name("exact_match"),
+            "Levenshtein": AutoMetric.from_name("levenshtein"),
+        }
+
+    def prepare_row(self, row: dict):
+        context = row["prompt"]
+        answer = row["answers"][0]
+        prompt = self.prompt_template.format(context=context)
+
+        return {
+            "prompt": prompt,
+            "context": context,
+            "labels": answer,
+        }  
+
+
 TASK_MAPPING = {
     "dolomites": Dolomites,
     "musique": Musique,
@@ -1342,6 +1372,7 @@ TASK_MAPPING = {
     "govreport": GovReport,
     "qmsum": QMSum,
     "multinews": MultiNews,
+    "lcc": LCC
 }
 
 
