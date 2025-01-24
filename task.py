@@ -1328,7 +1328,7 @@ Next line of code:
         self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1024, **kwargs
     ):
         super().__init__(
-            prompt_template, max_tokens, hf_args=["THUDM/LongBench"], **kwargs
+            prompt_template, max_tokens, hf_args=["THUDM/LongBench", "lcc"], **kwargs
         )
 
         self.metrics = { 
