@@ -1337,7 +1337,7 @@ Next line of code:
         }
 
     def prepare_row(self, row: dict):
-        context = row["prompt"]
+        context = row["context"]
         answer = row["answers"][0]
         prompt = self.prompt_template.format(context=context)
 
