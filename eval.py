@@ -357,6 +357,10 @@ def main(
 
     tokenizer = get_tokenizer(tokenizer_path, checkpoint_path, is_chat=is_chat)
 
+    # if cache_kwargs["cache_strategy"] is a list, take the first one
+    if type(cache_kwargs["cache_strategy"]) == list:
+        cache_kwargs["cache_strategy"] = cache_kwargs["cache_strategy"][0]
+
     if cache_kwargs["cache_strategy"] in ["hybrid", "debug_hybrid"]:
         # We need to pass the special and punctuation token ids to the cache via cache_kwargs
         cache_kwargs["token_ids"] = {
