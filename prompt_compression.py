@@ -192,6 +192,9 @@ class PromptCompressorHeavyHitter(PromptCompressorHeadSpecific):
         cum_attn = kwargs["attn"].sum(dim=2) / (seq_len - input_pos)
         cum_attn = cum_attn.gather(2, keep_idxs.view(1, -1, self.max_cache_length))
         return cum_attn
+    
+    def is_compatible(self):
+        return True # HACK for now, this should be changed to only be compatible with the cache that uses this compressor
 
 
 class PromptCompressorL2(PromptCompressorHeadSpecific):

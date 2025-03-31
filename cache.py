@@ -39,6 +39,7 @@ def add_cache_arguments(parser: argparse.ArgumentParser):
 
     strategies = [
         "full",
+        "snapkv_full",
         "random",
         "recent_global",
         "heavy_hitter",
@@ -513,6 +514,21 @@ class KVCacheFull(KVCacheHeadConstant):
     def _eviction_idx(self, input_pos):
         # Select the first unfilled slot
         return self.pos[0, 0].argmin().view(1)
+    
+
+class KVCacheSnapKVFull(KVCacheHeadSpecific):
+    def __init__(
+        self, max_batch_size, n_heads, head_dim, dtype=torch.bfloat16, **kwargs
+    ):
+        self.global_tokens = 0  # No global tokens for full cache (they are all global)
+        super().__init__(max_batch_size, n_heads, head_dim, dtype, **kwargs)
+
+    def _eviction_idx(self, input_pos):
+        # Select the first unfilled slot
+        return self.pos[0, 0].argmin().view(1)
+    
+    def return_attn(self):
+        return True # HACK
 
 
 class KVCacheRandom(KVCacheHeadConstant):
@@ -1539,6 +1555,8 @@ def get_cache_constructor(cache_strategy):
     relevant_kwargs = None
     if cache_strategy == "full":
         cls = KVCacheFull
+    elif cache_strategy == "snapkv_full":
+        cls = KVCacheSnapKVFull
     elif cache_strategy == "l2":
         cls = KVCacheL2
     elif cache_strategy == "random":

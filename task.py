@@ -1289,7 +1289,7 @@ Now, write a one-page summary of all the news. Summary:
 """
 
     def __init__(
-        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=1000, **kwargs
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=500, **kwargs
     ):
         super().__init__(
             prompt_template,
