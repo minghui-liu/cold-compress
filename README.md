@@ -1,4 +1,4 @@
-# LSH KV Cache Eviction (ICLR 2025)
+# LSH KV Cache Eviction
 
 # Introduction
 Official code repository for the paper:
@@ -58,40 +58,48 @@ because the GPT4-Judge requires openai api access. To turn off the GPT4-Judge me
 To run the `gsm8k` free response question answering experiments: 
 
 ```
-python parallelize_evals.py --command_file experiments/gsm8k.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/gsm8k.txt --num_gpus 8
 ```
 
 To run the `medqa` free response question answering experiments: 
 ```
-python parallelize_evals.py --command_file experiments/medqa.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/medqa.txt --num_gpus 8
 ```
 
 Replace the number of GPUs with the correct number of GPUs on your machine.
 
-### Multiple Choice
 
-To run the `gsm8k_mc` multiple choice experiments: 
-
-```
-python parallelize_evals.py --command_file experiments/gsm8k_,c.txt --num_gpus 8
-```
-
-To run the `medqa_mc` multiple choice experiments: 
-```
-python parallelize_evals.py --command_file experiments/medqa_mc.txt --num_gpus 8
-```
-
-### Long Context
+### Long Context Retrieval
 
 To run the `needle in a haystack` long context experiments:
 ```
-python parallelize_evals.py --command_file experiments/rulerniah.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/rulerniah.txt --num_gpus 8
 ```
 
 To run the `common words` long context experiments:
 ```
-python parallelize_evals.py --command_file experiments/cwe.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/cwe.txt --num_gpus 8
 ```
+
+### Long Context Summarization
+To run the `multinews` long context summarization experiments:
+```
+python parallelize_evals.py --command_file experiments/hashevict_experiments/multinews.txt --num_gpus 8
+```
+
+To run the `govreport` long context summarization experiments:
+```
+python parallelize_evals.py --command_file experiments/hashevict_experiments/govreport.txt --num_gpus 8
+```
+
+
+### LSH Dimension Experiment
+
+To run the LSH dimensions experiments:
+```
+python parallelize_evals.py --command_file experiments/hashevict_experiments/lsh_dim_ablation.txt --num_gpus 8
+```
+
 
 # Visualizations
 
