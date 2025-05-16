@@ -1,16 +1,21 @@
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config fastgen --min_recovery_frac 0.8 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.3 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.3 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.3 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.3 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config fastgen --min_recovery_frac 0.75 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.7 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.7 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.7 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.7 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config fastgen --min_recovery_frac 0.7 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.9 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.9 --tasks multinews --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.9 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.9 --tasks multinews --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config fastgen --min_recovery_frac 0.85 --tasks multinews --num_samples 50
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config full --tasks multinews --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.1 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.1 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.1 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.1 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.3 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.3 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.3 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.3 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.5 --tasks multinews --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.5 --tasks multinews --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.5 --tasks multinews --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.5 --tasks multinews --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.7 --tasks multinews --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.7 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.7 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.7 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.9 --tasks multinews --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.9 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.9 --tasks multinews --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.9 --tasks multinews --num_samples 100  

@@ -73,12 +73,12 @@ Replace the number of GPUs with the correct number of GPUs on your machine.
 
 To run the `needle in a haystack` long context experiments:
 ```
-python parallelize_evals.py --command_file experiments/hashevict_experiments/rulerniah.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/ruler_niah.txt --num_gpus 8
 ```
 
 To run the `common words` long context experiments:
 ```
-python parallelize_evals.py --command_file experiments/hashevict_experiments/cwe.txt --num_gpus 8
+python parallelize_evals.py --command_file experiments/hashevict_experiments/ruler_cwe.txt --num_gpus 8
 ```
 
 ### Long Context Summarization
@@ -91,6 +91,13 @@ To run the `govreport` long context summarization experiments:
 ```
 python parallelize_evals.py --command_file experiments/hashevict_experiments/govreport.txt --num_gpus 8
 ```
+
+### Long Context Code Completion
+To run the `LCC` long context code completion experiments:
+```
+python parallelize_evals.py --command_file experiments/hashevict_experiments/lcc.txt --num_gpus 8
+```
+
 
 
 ### LSH Dimension Experiment

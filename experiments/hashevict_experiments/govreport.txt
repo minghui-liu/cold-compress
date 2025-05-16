@@ -1,13 +1,21 @@
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config full --tasks govreport --num_samples 50
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.5 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.5 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.5 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.5 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.7 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.7 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.7 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.7 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.3 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.3 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.3 --tasks govreport --num_samples 50 --feed_long_prompts
-python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.3 --tasks govreport --num_samples 50 --feed_long_prompts
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config full --tasks govreport --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.1 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.1 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.1 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.1 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.3 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.3 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.3 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.3 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.5 --tasks govreport --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.5 --tasks govreport --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.5 --tasks govreport --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.5 --tasks govreport --num_samples 100 
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.7 --tasks govreport --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.7 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.7 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.7 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config l2 --max_cache_length 0.9 --tasks govreport --num_samples 100
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config lsh --max_cache_length 0.9 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config h2o --max_cache_length 0.9 --tasks govreport --num_samples 100  
+python3 eval.py --checkpoint_path "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth" --cache_config scissorhands --max_cache_length 0.9 --tasks govreport --num_samples 100  

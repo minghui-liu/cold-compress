@@ -1,11 +1,21 @@
-python eval.py --cache_config l2 --max_cache_length 0.1 --tasks gsm --feed_long_prompts
-python eval.py --cache_config l2 --max_cache_length 0.3 --tasks gsm --feed_long_prompts
-python eval.py --cache_config l2 --max_cache_length 0.5 --tasks gsm --feed_long_prompts
-python eval.py --cache_config l2 --max_cache_length 0.7 --tasks gsm --feed_long_prompts
-python eval.py --cache_config l2 --max_cache_length 0.9 --tasks gsm --feed_long_prompts
-python eval.py --cache_config lsh_16 --max_cache_length 0.1 --tasks gsm --feed_long_prompts
-python eval.py --cache_config lsh_16 --max_cache_length 0.3 --tasks gsm --feed_long_prompts
-python eval.py --cache_config lsh_16 --max_cache_length 0.5 --tasks gsm --feed_long_prompts
-python eval.py --cache_config lsh_16 --max_cache_length 0.7 --tasks gsm --feed_long_prompts
-python eval.py --cache_config lsh_16 --max_cache_length 0.9 --tasks gsm --feed_long_prompts
-python eval.py --cache_config full --tasks gsm
+python3 eval.py --cache_config full --tasks   gsm  
+python3 eval.py --cache_config l2 --max_cache_length 0.1 --tasks   gsm    
+python3 eval.py --cache_config lsh --max_cache_length 0.1 --tasks   gsm    
+python3 eval.py --cache_config h2o --max_cache_length 0.1 --tasks   gsm    
+python3 eval.py --cache_config scissorhands --max_cache_length 0.1 --tasks   gsm    
+python3 eval.py --cache_config l2 --max_cache_length 0.3 --tasks   gsm    
+python3 eval.py --cache_config lsh --max_cache_length 0.3 --tasks   gsm    
+python3 eval.py --cache_config h2o --max_cache_length 0.3 --tasks   gsm    
+python3 eval.py --cache_config scissorhands --max_cache_length 0.3 --tasks   gsm    
+python3 eval.py --cache_config l2 --max_cache_length 0.5 --tasks   gsm   
+python3 eval.py --cache_config lsh --max_cache_length 0.5 --tasks   gsm   
+python3 eval.py --cache_config h2o --max_cache_length 0.5 --tasks   gsm  
+python3 eval.py --cache_config scissorhands --max_cache_length 0.5 --tasks   gsm   
+python3 eval.py --cache_config l2 --max_cache_length 0.7 --tasks   gsm  
+python3 eval.py --cache_config lsh --max_cache_length 0.7 --tasks   gsm    
+python3 eval.py --cache_config h2o --max_cache_length 0.7 --tasks   gsm    
+python3 eval.py --cache_config scissorhands --max_cache_length 0.7 --tasks   gsm    
+python3 eval.py --cache_config l2 --max_cache_length 0.9 --tasks   gsm  
+python3 eval.py --cache_config lsh --max_cache_length 0.9 --tasks   gsm    
+python3 eval.py --cache_config h2o --max_cache_length 0.9 --tasks   gsm    
+python3 eval.py --cache_config scissorhands --max_cache_length 0.9 --tasks   gsm    
