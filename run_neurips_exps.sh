@@ -2,16 +2,16 @@
 
 export OPENAI_API_KEY=
 
-command_files = (
+command_files=(
     experiments/neurips/llama_govreport.txt
     experiments/neurips/llama_multinews.txt
     experiments/neurips/qwen_gsm8k.txt
     experiments/neurips/qwen_medqa.txt
     experiments/neurips/qwen_multinews.txt
     experiments/neurips/qwen_govreport.txt
-    experiments/neurips/ruler_niah131k.txt
-    experiments/neurips/ruler_vt131k.txt
-    experiments/neurips/ruler_cwe131k.txt
+    experiments/neurips/ruler_niah_131k.txt
+    experiments/neurips/ruler_vt_131k.txt
+    experiments/neurips/ruler_cwe_131k.txt
 )
 
 # cat command files into a single file called all_commands.txt
