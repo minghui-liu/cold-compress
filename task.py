@@ -555,6 +555,44 @@ class RulerQA(EvaluationTask):
             "labels": answer,
         }
 
+class RulerQA131K(EvaluationTask):
+    """
+    RULER hotpotqa task with 131k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=32, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["minghuiliu/ruler", "qa_2_131k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=True),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+
 
 class PG19(EvaluationTask):
     """
@@ -688,7 +726,7 @@ class RulerNIAH131K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["rbiswasfc/ruler", "niah_multikey_1_131k"],
+            hf_args=["minghuiliu/ruler_llama", "niah_multikey_1_131k"],
             **kwargs,
         )
 
@@ -788,7 +826,43 @@ class RulerVT4K(EvaluationTask):
             "labels": answer,
         }
 
+class RulerVT131K(EvaluationTask):
+    """
+    RULER Multi-hop Tracing: Variable Tracking (VT) task with 131k context length. (context length can be adjusted as needed)
+    """
 
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=30, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["minghuiliu/ruler_llama", "vt_131k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
 
 class RulerCWE(EvaluationTask):
     """
@@ -829,7 +903,6 @@ class RulerCWE(EvaluationTask):
         }
 
 
-
 class RulerCWE4K(EvaluationTask):
     """
     RULER Aggregation: Common Words (CWE) task with 4k context length. (context length can be adjusted as needed)
@@ -844,6 +917,45 @@ class RulerCWE4K(EvaluationTask):
             prompt_template,
             max_tokens,
             hf_args=["rbiswasfc/ruler", "cwe_4k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
+
+class RulerCWE131K(EvaluationTask):
+    """
+    RULER Aggregation: Common Words (CWE) task with 131k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=120, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["minghuiliu/ruler", "cwe_131k"],
             **kwargs,
         )
 
@@ -1390,9 +1502,13 @@ TASK_MAPPING = {
     "qmsum": QMSum,
     "repobench": RepoBench,
     "rulerqa": RulerQA,
+    "rulerqa131k": RulerQA131K,
     "rulerniah": RulerNIAH4K,
     "rulervt": RulerVT4K,
     "rulercwe": RulerCWE4K,
+    "rulerniah131k": RulerNIAH131K,
+    "rulervt131k": RulerVT131K,
+    "rulercwe131k": RulerCWE131K,
     "scrollsquality": ScrollsQuality,
     "squality": Squality,
     "triviaqa": TriviaQA,
