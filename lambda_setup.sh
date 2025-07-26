@@ -6,6 +6,10 @@ bash Miniconda3-latest-Linux-x86_64.sh
 
 source ~/miniconda3/bin/activate
 
+#
+~/miniconda3/bin/conda init
+source ~/.bashrc
+
 ## initialize conda
 conda create --name hashevict python=3.10 -y
 conda activate hashevict
@@ -41,4 +45,4 @@ cd RULER
 git lfs install
 git lfs pull
 # RULER dependencies
-pip install wonderwords tenacity nemo nemo_toolkit[all] html2text
+pip install wonderwords tenacity nemo nemo_toolkit[all] html2text huggingface_hub[cli]
