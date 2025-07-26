@@ -1,11 +1,14 @@
 #!/bin/bash
 
 ## download miniconda
-# wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-# bash Miniconda3-latest-Linux-x86_64.sh
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+
+source ~/miniconda3/bin/activate
+
 ## initialize conda
-# conda create --name hashevict python=3.10 -y
-# conda activate hashevict
+conda create --name hashevict python=3.10 -y
+conda activate hashevict
 
 # clone the repo
 git clone https://github.com/minghui-liu/cold-compress.git
@@ -31,3 +34,11 @@ bash scripts/prepare_qwen2.sh
 
 # print 'Setup done!'
 echo 'Setup done!'
+
+
+sudo apt-get install git-lfs
+cd RULER
+git lfs install
+git lfs pull
+# RULER dependencies
+pip install wonderwords tenacity nemo nemo_toolkit[all] html2text

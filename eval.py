@@ -312,7 +312,8 @@ def main(
     tasks: List[str],
     debug: bool = False,
     checkpoint_path: Path = Path(
-        "checkpoints/meta-Transformer/Transformer-2-7b-chat-hf/model.pth"
+        # "checkpoints/meta-Transformer/Transformer-2-7b-chat-hf/model.pth"
+        "checkpoints/meta-llama/Meta-Llama-3.1-8B-Instruct/model.pth"
     ),
     profile: Optional[Path] = None,
     compile=True,

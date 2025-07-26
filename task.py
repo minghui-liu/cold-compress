@@ -675,6 +675,41 @@ class RulerNIAH4K(EvaluationTask):
             "labels": answer,
         }
 
+class RulerNIAH131K(EvaluationTask):
+    """
+    RULER Multi-keys Needle-in-a-haystack (NIAH) task with 131k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=128, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["rbiswasfc/ruler", "niah_multikey_1_131k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": "",
+            "question": "",
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
 
 class RulerVT(EvaluationTask):
     """
