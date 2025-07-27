@@ -10,6 +10,7 @@ command_files=(
     experiments/neurips/qwen_multinews.txt
     experiments/neurips/qwen_govreport.txt
     experiments/neurips/ruler_niah_long.txt
+    experiments/neurips/ruler_qa_long.txt
     experiments/neurips/ruler_vt_long.txt
     experiments/neurips/ruler_cwe_long.txt
 )
