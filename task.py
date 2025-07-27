@@ -568,7 +568,7 @@ class RulerQA64K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["minghuiliu/ruler", "qa_2_64k"],
+            hf_args=["minghuiliu/ruler_llama", "qa_2_64k"],
             **kwargs,
         )
 
