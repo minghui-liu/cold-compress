@@ -555,9 +555,9 @@ class RulerQA(EvaluationTask):
             "labels": answer,
         }
 
-class RulerQA131K(EvaluationTask):
+class RulerQA64K(EvaluationTask):
     """
-    RULER hotpotqa task with 131k context length. (context length can be adjusted as needed)
+    RULER hotpotqa task with 64k context length. (context length can be adjusted as needed)
     """
 
     DEFAULT_PROMPT_TEMPLATE = "{task_input}"
@@ -568,7 +568,7 @@ class RulerQA131K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["minghuiliu/ruler", "qa_2_131k"],
+            hf_args=["minghuiliu/ruler", "qa_2_64k"],
             **kwargs,
         )
 
@@ -713,9 +713,9 @@ class RulerNIAH4K(EvaluationTask):
             "labels": answer,
         }
 
-class RulerNIAH131K(EvaluationTask):
+class RulerNIAH64K(EvaluationTask):
     """
-    RULER Multi-keys Needle-in-a-haystack (NIAH) task with 131k context length. (context length can be adjusted as needed)
+    RULER Multi-keys Needle-in-a-haystack (NIAH) task with 64k context length. (context length can be adjusted as needed)
     """
 
     DEFAULT_PROMPT_TEMPLATE = "{task_input}"
@@ -726,7 +726,7 @@ class RulerNIAH131K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["minghuiliu/ruler_llama", "niah_multikey_1_131k"],
+            hf_args=["minghuiliu/ruler_llama", "niah_multikey_1_64k"],
             **kwargs,
         )
 
@@ -826,9 +826,9 @@ class RulerVT4K(EvaluationTask):
             "labels": answer,
         }
 
-class RulerVT131K(EvaluationTask):
+class RulerVT64K(EvaluationTask):
     """
-    RULER Multi-hop Tracing: Variable Tracking (VT) task with 131k context length. (context length can be adjusted as needed)
+    RULER Multi-hop Tracing: Variable Tracking (VT) task with 64k context length. (context length can be adjusted as needed)
     """
 
     DEFAULT_PROMPT_TEMPLATE = "{task_input}"
@@ -839,7 +839,7 @@ class RulerVT131K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["minghuiliu/ruler_llama", "vt_131k"],
+            hf_args=["minghuiliu/ruler_llama", "vt_64k"],
             **kwargs,
         )
 
@@ -942,9 +942,9 @@ class RulerCWE4K(EvaluationTask):
         }
     
 
-class RulerCWE131K(EvaluationTask):
+class RulerCWE64K(EvaluationTask):
     """
-    RULER Aggregation: Common Words (CWE) task with 131k context length. (context length can be adjusted as needed)
+    RULER Aggregation: Common Words (CWE) task with 64k context length. (context length can be adjusted as needed)
     """
 
     DEFAULT_PROMPT_TEMPLATE = "{task_input}"
@@ -955,7 +955,7 @@ class RulerCWE131K(EvaluationTask):
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["minghuiliu/ruler", "cwe_131k"],
+            hf_args=["minghuiliu/ruler", "cwe_64k"],
             **kwargs,
         )
 
@@ -1502,13 +1502,13 @@ TASK_MAPPING = {
     "qmsum": QMSum,
     "repobench": RepoBench,
     "rulerqa": RulerQA,
-    "rulerqa131k": RulerQA131K,
+    "rulerqa64k": RulerQA64K,
     "rulerniah": RulerNIAH4K,
     "rulervt": RulerVT4K,
     "rulercwe": RulerCWE4K,
-    "rulerniah131k": RulerNIAH131K,
-    "rulervt131k": RulerVT131K,
-    "rulercwe131k": RulerCWE131K,
+    "rulerniah64k": RulerNIAH64K,
+    "rulervt64k": RulerVT64K,
+    "rulercwe64k": RulerCWE64K,
     "scrollsquality": ScrollsQuality,
     "squality": Squality,
     "triviaqa": TriviaQA,
