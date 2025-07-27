@@ -575,7 +575,7 @@ class RulerQA131K(EvaluationTask):
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=True),
         }
-        self.test_split = "test"
+        self.test_split = "validation"
 
     def prepare_row(self, row: dict):
         task_input = row["input"]
@@ -733,7 +733,7 @@ class RulerNIAH131K(EvaluationTask):
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
         }
-        self.test_split = "test"
+        self.test_split = "validation"
 
     def prepare_row(self, row: dict):
         task_input = row["input"]
@@ -846,7 +846,7 @@ class RulerVT131K(EvaluationTask):
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
         }
-        self.test_split = "test"
+        self.test_split = "validation"
 
     def prepare_row(self, row: dict):
         task_input = row["input"]
@@ -962,7 +962,7 @@ class RulerCWE131K(EvaluationTask):
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
         }
-        self.test_split = "test"
+        self.test_split = "validation"
 
     def prepare_row(self, row: dict):
         task_input = row["input"]
