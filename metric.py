@@ -7,8 +7,8 @@ from claudette import Chat, models
 from evaluate import load
 from anthropic import RateLimitError
 import regex as re
+import openai
 from openai import OpenAI
-
 class Metric:
     def __init__(self, **kwargs):
         self._load_metric(**kwargs)
@@ -240,20 +240,47 @@ class ChatGPTRouge(Metric):
         return int(re.search(r"\d+", text).group())
 
     def compute(self, prompts, predictions, labels):
-        scores = []
+        # use batch inference to openai to get scores
+        prompts = []
         for p, ls in zip(predictions, labels):
-            completion = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
-                ],
-                max_tokens=1,
-                n=1,
-                temperature=0.5,
-            )
-            score = completion.choices[0].message.content.strip()
-            score = self.parse_int(score)
-            scores.append(score)
+            message =  {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
+            prompts.append(message)
+        scores = []
+        retries = 0
+        while retries < self.num_retries:
+            try:
+                completions = self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=prompts,
+                    max_tokens=1,
+                    n=1,
+                    temperature=0.5,
+                )
+                for completion in completions.choices:
+                    score = completion.message.content.strip()
+                    score = self.parse_int(score)
+                    scores.append(score)
+                break
+            except openai.error.RateLimitError as e:
+                retry_after = e.response.headers.get("Retry-After")
+                if retry_after:
+                    wait_time = int(retry_after)
+                    print(f"Rate limit hit. Retrying after {wait_time} seconds.")
+                    time.sleep(wait_time)
+                else:
+                    # Fallback to exponential backoff if Retry-After is not present
+                    wait_time = 2 ** retries
+                    print(f"Rate limit hit. Retrying with exponential backoff after {wait_time} seconds.")
+                    time.sleep(wait_time)
+                retries += 1
+            except openai.error.APIError as e:
+                print(f"OpenAI API error: {e}")
+                retries += 1
+                time.sleep(2 ** retries) # Generic backoff for other API errors
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                break # Exit on unhandled errors
+
         return {"chatgpt_rouge": sum(scores) / len(scores)}
 
 
@@ -373,30 +400,25 @@ class ChatGPTJudge(Metric):
                 f"Could not parse LLM-generated scorecard for {self.__class__}:\n{scorecard}"
             )
 
-    def claudette_scorecard(self, prompt, prediction):
-        prompt = LLM_JUDGE_TEMPLATE.format(
-            criteria=self.criteria_def, prompt=prompt, prediction=prediction
-        ) + self.reminder
-        completion = self.client.chat.completions.create(
+    def compute(self, prompts, predictions, labels):
+        prompts = []
+        scores = []
+        for prompt, pred in zip(prompts, predictions):
+            prompt = LLM_JUDGE_TEMPLATE.format(
+                criteria=self.criteria_def, prompt=prompt, prediction=pred
+            ) + self.reminder
+            message = {"role": "user", "content": prompt}
+            prompts.append(message)
+        
+        completions = self.client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
+            messages=prompts,
             max_tokens=20,
             n=1,
             temperature=0.5,
         )
-        
-        scorecard = completion.choices[0].message.content.strip()
-
-        return scorecard
-
-    def compute(self, prompts, predictions, labels):
-        scores = []
-
-        for prompt, pred in zip(prompts, predictions):
-            scorecard = self.claudette_scorecard(prompt, pred)
-
+        for completion in completions.choices:
+            scorecard = completion.message.content.strip()
             numbers = re.findall(r"\d+", scorecard)
             if len(numbers) < len(self.criteria):
                 print(f"[DEBUG] [Prompt]: \n{prompt}\n [Prediction]: \n{pred}\n [Scorecard]: \n{scorecard}")
