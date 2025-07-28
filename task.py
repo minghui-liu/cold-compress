@@ -612,6 +612,9 @@ class RulerQA131K(EvaluationTask):
 
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=True),
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
         }
         self.test_split = "validation"
 
@@ -805,6 +808,9 @@ class RulerNIAH131K(EvaluationTask):
 
         self.metrics = {
             "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
         }
         self.test_split = "validation"
 
