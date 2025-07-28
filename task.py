@@ -1583,7 +1583,7 @@ TASK_MAPPING = {
     "rulerqa64k": RulerQA64K,
     "rulerqa131k": RulerQA131K,
     "rulerniah": RulerNIAH4K,
-    "rulerniah131,": RulerNIAH131K,
+    "rulerniah131k": RulerNIAH131K,
     "rulervt": RulerVT4K,
     "rulercwe": RulerCWE4K,
     "rulerniah64k": RulerNIAH64K,
