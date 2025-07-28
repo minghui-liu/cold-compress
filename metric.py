@@ -9,6 +9,10 @@ from anthropic import RateLimitError
 import regex as re
 import openai
 from openai import OpenAI
+from openai import RateLimitError, APIError, APIConnectionError, APITimeoutError
+import random
+
+
 class Metric:
     def __init__(self, **kwargs):
         self._load_metric(**kwargs)
@@ -231,6 +235,7 @@ class ChatGPTRouge(Metric):
         ), "Please set the OPENAI_API_KEY environment variable."
         super().__init__(**kwargs)
         self.num_retries = num_retries
+        self.model = kwargs.get("model", "gpt-4o-mini")
 
     def _load_metric(self, **kwargs):
         self.api_key = os.environ["OPENAI_API_KEY"]
@@ -250,7 +255,7 @@ class ChatGPTRouge(Metric):
         while retries < self.num_retries:
             try:
                 completions = self.client.chat.completions.create(
-                    model="gpt-4o",
+                    model=self.model,
                     messages=prompts,
                     max_tokens=1,
                     n=1,
@@ -356,7 +361,7 @@ class LLMJudge(LLMRouge):
             scores.append(score_dict)
 
         return {k: np.mean([s[k] for s in scores]) for k in self.criteria}
-    
+
 
 class ChatGPTJudge(Metric):
     def __init__(self, **kwargs) -> None:
@@ -367,66 +372,94 @@ class ChatGPTJudge(Metric):
 
         self.criteria = list(sorted([k for k in CRITERIA]))
         self.criteria_def = "\n".join([f"{k}: {CRITERIA[k]}" for k in self.criteria])
+        self.use_batch = kwargs.get("use_batch", False)
+        self.max_retries = kwargs.get("max_retries", 5)
+        self.max_delay = kwargs.get("max_delay", 30)
+        self.base_delay = kwargs.get("base_delay", 1)
+        self.model = kwargs.get("model", "gpt-4o-mini")
 
-        self.reminder = """\n\nRemember to respond with format "criteria: score" for each criteria with a newline for each criteria. Assign a score from 1-5 where 1 is the worst and 5 is the best based on how well the answer meets the criteria. The score must be an integer from 1-5.\n"""
- 
     def _load_metric(self, **kwargs):
         self.api_key = os.environ["OPENAI_API_KEY"]
         self.client = OpenAI(api_key=self.api_key)
     
     def parse_scorecard(self, scorecard):
         try:
-            score_dict = {
+            return {
                 k: int(v)
                 for k, v in dict(
                     re.findall(rf"({'|'.join(self.criteria)})\W+(\d+)", scorecard)
                 ).items()
             }
-            if len(score_dict) != len(self.criteria):
-                score_dict = {}
-                # use re to extract all numbers from the scorecard
-                # and assign them to the corresponding criteria
-                # in the order of the criteria
-                numbers = re.findall(r"\d+", scorecard)
-                if len(numbers) < len(self.criteria):
-                    # raise Exception(f"Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
-                    numbers += [1] * (len(self.criteria) - len(numbers))
-                for i, k in enumerate(self.criteria):
-                    score_dict[k] = int(numbers[i])
-            return score_dict
         except Exception as e:
             print(e)
             raise Exception(
                 f"Could not parse LLM-generated scorecard for {self.__class__}:\n{scorecard}"
             )
 
-    def compute(self, prompts, predictions, labels):
-        prompts = []
-        scores = []
-        for prompt, pred in zip(prompts, predictions):
-            prompt = LLM_JUDGE_TEMPLATE.format(
-                criteria=self.criteria_def, prompt=prompt, prediction=pred
-            ) + self.reminder
-            message = {"role": "user", "content": prompt}
-            prompts.append(message)
-        
+    def claudette_scorecard(self, prompt, prediction):
+        prompt = LLM_JUDGE_TEMPLATE.format(
+            criteria=self.criteria_def, prompt=prompt, prediction=prediction
+        )
+
+        """
+        Exponential backoff with 'full jitter':
+        sleep = min(max_delay, base_delay * 2**attempt) * (1 + random.random())
+        """
+        attempt = 0
+        while attempt < self.max_retries:
+            try:
+                completion = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=20,
+                    n=1,
+                    temperature=0.5,
+                )
+                scorecard = completion.choices[0].message.content.strip()
+                return scorecard
+            except (RateLimitError, APIError, APIConnectionError, APITimeoutError) as e:
+                if attempt == self.max_retries - 1:
+                    raise  # bubble up after last retry
+                sleep = min(self.max_delay, self.base_delay * (2 ** attempt)) * (1 + random.random())
+                print(f"[attempt {attempt+1}/{self.max_retries}] {type(e).__name__}: {e}. "
+                      f"Sleeping {sleep:.2f}s before retrying…")
+                time.sleep(sleep)
+        return
+
+    def batch_scorecard(self, prompts, predictions):
+        messages = [
+            {"role": "user", "content": LLM_JUDGE_TEMPLATE.format(
+                criteria=self.criteria_def, prompt=prompt, prediction=prediction
+            )}
+            for prompt, prediction in zip(prompts, predictions)
+        ]
         completions = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=prompts,
+            model=self.model,
+            messages=messages,
             max_tokens=20,
             n=1,
             temperature=0.5,
         )
-        for completion in completions.choices:
-            scorecard = completion.message.content.strip()
-            numbers = re.findall(r"\d+", scorecard)
-            if len(numbers) < len(self.criteria):
-                print(f"[DEBUG] [Prompt]: \n{prompt}\n [Prediction]: \n{pred}\n [Scorecard]: \n{scorecard}")
-                
-            score_dict = self.parse_scorecard(scorecard)
-            scores.append(score_dict)
+        return [completion.message.content.strip() for completion in completions.choices]
+    
+    def compute(self, prompts, predictions, labels):
+        scores = []
 
+        if self.use_batch:
+            scorecards = self.batch_scorecard(prompts, predictions)
+            for prompt, pred, scorecard in zip(prompts, predictions, scorecards):
+                score_dict = self.parse_scorecard(scorecard)
+                scores.append(score_dict)
+        else:
+            for prompt, pred in zip(prompts, predictions):
+                scorecard = self.claudette_scorecard(prompt, pred)
+                score_dict = self.parse_scorecard(scorecard)
+                scores.append(score_dict)
+        
         return {k: np.mean([s[k] for s in scores]) for k in self.criteria}
+
 
 
 METRIC_MAPPING = {
