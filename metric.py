@@ -375,7 +375,7 @@ class ChatGPTJudge(Metric):
         self.use_batch = kwargs.get("use_batch", False)
         self.max_retries = kwargs.get("max_retries", 5)
         self.max_delay = kwargs.get("max_delay", 30)
-        self.base_delay = kwargs.get("base_delay", 1)
+        self.base_delay = kwargs.get("base_delay", 2)
         self.model = kwargs.get("model", "gpt-4o-mini")
 
     def _load_metric(self, **kwargs):
@@ -408,6 +408,7 @@ class ChatGPTJudge(Metric):
         attempt = 0
         while attempt < self.max_retries:
             try:
+                attempt += 1
                 completion = self.client.chat.completions.create(
                     model=self.model,
                     messages=[

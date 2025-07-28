@@ -1034,7 +1034,7 @@ class GSM8K(EvaluationTask):
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o"),
         }
         self.validation_split = None
 
@@ -1166,7 +1166,7 @@ class MEDQA(EvaluationTask):
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o"),
         }
 
     def _download(self):
@@ -1356,7 +1356,7 @@ Now, write a one-page summary of the report.
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o-mini"),
         }
         self.test_split = "test"
 
@@ -1404,7 +1404,7 @@ Answer:
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o-mini"),
         }
         self.test_split = "test"
 
@@ -1449,7 +1449,7 @@ Now, write a one-page summary of all the news. Summary:
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o-mini"),
         }
         self.test_split = "test"
 
