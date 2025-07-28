@@ -384,12 +384,24 @@ class ChatGPTJudge(Metric):
     
     def parse_scorecard(self, scorecard):
         try:
-            return {
+            score_dict = {
                 k: int(v)
                 for k, v in dict(
                     re.findall(rf"({'|'.join(self.criteria)})\W+(\d+)", scorecard)
                 ).items()
             }
+            if len(score_dict) != len(self.criteria):
+                score_dict = {}
+                # use re to extract all numbers from the scorecard
+                # and assign them to the corresponding criteria
+                # in the order of the criteria
+                numbers = re.findall(r"\d+", scorecard)
+                if len(numbers) < len(self.criteria):
+                    # raise Exception(f"Could not parse LLm-generated scorecard for {self.__class__}:\n{scorecard}")
+                    numbers += [1] * (len(self.criteria) - len(numbers))
+                for i, k in enumerate(self.criteria):
+                    score_dict[k] = int(numbers[i])
+            return score_dict
         except Exception as e:
             print(e)
             raise Exception(
