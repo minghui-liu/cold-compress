@@ -1,0 +1,13 @@
+python3 eval.py --cache_config l2 --max_cache_length 0.5 --tasks  rulerqa8k  --num_samples 100
+python3 eval.py --cache_config lsh --max_cache_length 0.5 --tasks  rulerqa8k  --num_samples 100
+python3 eval.py --cache_config h2o --max_cache_length 0.5 --tasks  rulerqa8k --num_samples 100
+python3 eval.py --cache_config snapkv --max_cache_length 0.5 --tasks  rulerqa8k  --num_samples 
+python3 eval.py --cache_config l2 --max_cache_length 0.5 --tasks  rulerqa16k  --num_samples 100
+python3 eval.py --cache_config lsh --max_cache_length 0.5 --tasks  rulerqa16k  --num_samples 100
+python3 eval.py --cache_config h2o --max_cache_length 0.5 --tasks  rulerqa16k --num_samples 100
+python3 eval.py --cache_config snapkv --max_cache_length 0.5 --tasks  rulerqa16k  --num_samples 100
+python3 eval.py --cache_config l2 --max_cache_length 0.5 --tasks  rulerqa32k  --num_samples 100
+python3 eval.py --cache_config lsh --max_cache_length 0.5 --tasks  rulerqa32k  --num_samples 100
+python3 eval.py --cache_config h2o --max_cache_length 0.5 --tasks  rulerqa32k --num_samples 100
+python3 eval.py --cache_config snapkv --max_cache_length 0.5 --tasks  rulerqa32k  --num_samples 100
+python3 eval.py --cache_config snapkv --max_cache_length 0.5 --tasks  rulerqa64k  --num_samples 100
