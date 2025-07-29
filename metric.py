@@ -228,6 +228,8 @@ class LLMRouge(Metric):
         return {"llm_rouge": sum(scores) / len(scores)}
 
 
+
+
 class ChatGPTRouge(Metric):
     def __init__(self, num_retries=5, **kwargs) -> None:
         assert (
@@ -236,6 +238,9 @@ class ChatGPTRouge(Metric):
         super().__init__(**kwargs)
         self.num_retries = num_retries
         self.model = kwargs.get("model", "gpt-4o-mini")
+        self.max_delay = kwargs.get("max_delay", 30)
+        self.base_delay = kwargs.get("base_delay", 2)
+
 
     def _load_metric(self, **kwargs):
         self.api_key = os.environ["OPENAI_API_KEY"]
@@ -243,6 +248,37 @@ class ChatGPTRouge(Metric):
 
     def parse_int(self, text):
         return int(re.search(r"\d+", text).group())
+    
+    def compute(self, prompts, predictions, labels):
+        scores = []
+        for p, ls in zip(predictions, labels):
+            retries = 0
+            while retries < self.num_retries:
+                try:
+                    retries += 1
+                    completion = self.client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
+                        ],
+                        max_tokens=1,
+                        n=1,
+                        temperature=0.5,
+                    )
+                except (RateLimitError, APIError, APIConnectionError, APITimeoutError) as e:
+                    if retries == self.num_retries:
+                        raise
+                    sleep = min(self.max_delay, self.base_delay * (2 ** retries)) * (1 + random.random())
+                    print(f"[attempt {retries+1}/{self.num_retries}] {type(e).__name__}: {e}. "
+                        f"Sleeping {sleep:.2f}s before retrying…")
+                    time.sleep(sleep)
+                else:
+                    score = completion.choices[0].message.content.strip()
+                    score = self.parse_int(score)
+                    scores.append(score)
+                    break  # Exit loop if successful
+        return {"chatgpt_rouge": sum(scores) / len(scores)}
+
 
     def compute(self, prompts, predictions, labels):
         # use batch inference to openai to get scores
@@ -433,7 +469,7 @@ class ChatGPTJudge(Metric):
                 scorecard = completion.choices[0].message.content.strip()
                 return scorecard
             except (RateLimitError, APIError, APIConnectionError, APITimeoutError) as e:
-                if attempt == self.max_retries - 1:
+                if attempt == self.max_retries:
                     raise  # bubble up after last retry
                 sleep = min(self.max_delay, self.base_delay * (2 ** attempt)) * (1 + random.random())
                 print(f"[attempt {attempt+1}/{self.max_retries}] {type(e).__name__}: {e}. "
