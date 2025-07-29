@@ -257,7 +257,7 @@ class ChatGPTRouge(Metric):
                 try:
                     retries += 1
                     completion = self.client.chat.completions.create(
-                        model="gpt-4o",
+                        model=self.model,
                         messages=[
                             {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
                         ],

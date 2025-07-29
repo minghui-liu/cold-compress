@@ -1394,7 +1394,7 @@ class MEDQA(EvaluationTask):
             "BertScore": AutoMetric.from_name("bertscore"),
             "Rouge": AutoMetric.from_name("rouge"),
             "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
-            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o-mini"),
         }
 
     def _download(self):
