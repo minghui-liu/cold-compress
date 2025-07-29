@@ -555,6 +555,45 @@ class RulerQA(EvaluationTask):
             "labels": answer,
         }
 
+
+class RulerQA32K(EvaluationTask):
+    """
+    RULER hotpotqa task with 32k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=32, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["minghuiliu/ruler_llama", "qa_2_32k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=True),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        question = task_input.split("Question:")[-1].split("Answer:")[0].strip()
+        context = task_input.split("Question:")[0].strip()
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": context,
+            "question": question,
+            "prompt": prompt,
+            "labels": answer,
+        }
+    
 class RulerQA64K(EvaluationTask):
     """
     RULER hotpotqa task with 64k context length. (context length can be adjusted as needed)
@@ -754,6 +793,40 @@ class RulerNIAH4K(EvaluationTask):
             "labels": answer,
         }
 
+class RulerNIAH32K(EvaluationTask):
+    """
+    RULER Multi-keys Needle-in-a-haystack (NIAH) task with 32k context length. (context length can be adjusted as needed)
+    """
+
+    DEFAULT_PROMPT_TEMPLATE = "{task_input}"
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=128, **kwargs
+    ):
+        super().__init__(
+            prompt_template,
+            max_tokens,
+            hf_args=["minghuiliu/ruler_llama", "niah_multikey_1_32k"],
+            **kwargs,
+        )
+
+        self.metrics = {
+            "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=False),
+        }
+        self.test_split = "validation"
+
+    def prepare_row(self, row: dict):
+        task_input = row["input"]
+
+        prompt = self.prompt_template.format(task_input=task_input)
+        answer = row["outputs"]  # List[str]
+
+        return {
+            "context": "",
+            "question": "",
+            "prompt": prompt,
+            "labels": answer,
+        }
 class RulerNIAH64K(EvaluationTask):
     """
     RULER Multi-keys Needle-in-a-haystack (NIAH) task with 64k context length. (context length can be adjusted as needed)
@@ -1660,13 +1733,15 @@ TASK_MAPPING = {
     "qmsum": QMSum,
     "repobench": RepoBench,
     "rulerqa": RulerQA,
+    "rulerqa32k": RulerQA32K,
     "rulerqa64k": RulerQA64K,
     "rulerqa131k": RulerQA131K,
     "rulerniah": RulerNIAH4K,
+    "rulerniah32k": RulerNIAH32K,
+    "rulerniah64k": RulerNIAH64K,
     "rulerniah131k": RulerNIAH131K,
     "rulervt": RulerVT4K,
     "rulercwe": RulerCWE4K,
-    "rulerniah64k": RulerNIAH64K,
     "rulervt64k": RulerVT64K,
     "rulercwe64k": RulerCWE64K,
     "scrollsquality": ScrollsQuality,
