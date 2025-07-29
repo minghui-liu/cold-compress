@@ -1571,6 +1571,86 @@ Next line of code:
             "context": context,
             "labels": answer,
         }  
+    
+class Qasper(EvaluationTask):
+    DEFAULT_PROMPT_TEMPLATE = """You are given a scientific article and a question. Answer the question as concisely as you
+can, using a single phrase or sentence if possible. If the question cannot be answered based on the
+information in the article, write “unanswerable”. If the question is a yes/no question, answer “yes”,
+“no”, or “unanswerable”. Do not provide any explanation.
+Article: {context}
+Answer the question based on the above article as concisely as you can, using a single phrase or
+sentence if possible. If the question cannot be answered based on the information in the article, write
+“unanswerable”. If the question is a yes/no question, answer “yes”, “no”, or “unanswerable”. Do not
+provide any explanation.
+Question: {input}
+Answer:
+"""
+
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=100, **kwargs
+    ):
+        super().__init__(
+            prompt_template, max_tokens, hf_args=["minghuiliu/longbench", "qasper"], **kwargs
+        )
+
+        self.metrics = { 
+            # "StringMatch": AutoMetric.from_name("ruler-string-match", match_part=True),
+            "BertScore": AutoMetric.from_name("bertscore"),
+            "Rouge": AutoMetric.from_name("rouge"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+            "ChatGPTJudge": AutoMetric.from_name("chatgpt-as-a-judge", model="gpt-4o-mini"),
+        }
+
+    def prepare_row(self, row: dict):
+        context = row["context"]
+        input = row["input"]
+        answer = row["answers"][0]
+        prompt = self.prompt_template.format(context=context, input=input)
+
+        return {
+            "prompt": prompt,
+            "context": context,
+            "labels": answer,
+        }  
+
+
+def PassageRetrieval(EvaluationTask):
+    """
+    LongBench passage retrieval eval task
+    """
+    
+    DEFAULT_PROMPT_TEMPLATE = """PassageRetrieval-en: Here are 30 paragraphs from Wikipedia, along with an abstract. Please
+determine which paragraph the abstract is from.
+{context}
+The following is an abstract.
+{input}
+Please enter the number of the paragraph that the abstract is from. The answer format must be like
+“Paragraph 1”, “Paragraph 2”, etc.
+The answer is:
+"""
+    def __init__(
+        self, prompt_template=DEFAULT_PROMPT_TEMPLATE, max_tokens=100, **kwargs
+    ):
+        super().__init__(
+            prompt_template, max_tokens, hf_args=["minghuiliu/longbench", "qasper"], **kwargs
+        )
+
+        self.metrics = { 
+            "ExactMatch": AutoMetric.from_name("exact_match"),
+            "ChatGPT-Rouge": AutoMetric.from_name("chatgpt-rouge"),
+        }
+
+    def prepare_row(self, row: dict):
+        context = row["context"]
+        input = row["input"]
+        answer = row["answers"]
+        prompt = self.prompt_template.format(context=context, input=input)
+
+        return {
+            "prompt": prompt,
+            "context": context,
+            "labels": answer,
+        }  
 
 
 TASK_MAPPING = {
@@ -1603,7 +1683,9 @@ TASK_MAPPING = {
     "govreport": GovReport,
     "qmsum": QMSum,
     "multinews": MultiNews,
-    "lcc": LCC
+    "lcc": LCC,
+    "qasper": Qasper,
+    "passage_retrieval": PassageRetrieval,
 }
 
 
