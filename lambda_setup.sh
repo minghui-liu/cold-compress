@@ -19,6 +19,9 @@ cd cold-compress
 # pip install --user -r requirements.txt --extra-index-url https://download.pytorch.org/whl/nightly/
 pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/nightly/
 
+python -c "import torch; print('CUDA', torch.version.cuda, 'available', torch.cuda.is_available())"
+
+
 git config --global credential.helper store
 
 ## create .env file
