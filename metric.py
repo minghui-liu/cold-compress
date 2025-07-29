@@ -280,50 +280,6 @@ class ChatGPTRouge(Metric):
         return {"chatgpt_rouge": sum(scores) / len(scores)}
 
 
-    def compute(self, prompts, predictions, labels):
-        # use batch inference to openai to get scores
-        prompts = []
-        for p, ls in zip(predictions, labels):
-            message =  {"role": "user", "content": REFERENCE_TEMPLATE.format(labels="\n---\n".join(ls), prediction=p)}
-            prompts.append(message)
-        scores = []
-        retries = 0
-        while retries < self.num_retries:
-            try:
-                completions = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=prompts,
-                    max_tokens=1,
-                    n=1,
-                    temperature=0.5,
-                )
-                for completion in completions.choices:
-                    score = completion.message.content.strip()
-                    score = self.parse_int(score)
-                    scores.append(score)
-                break
-            except openai.error.RateLimitError as e:
-                retry_after = e.response.headers.get("Retry-After")
-                if retry_after:
-                    wait_time = int(retry_after)
-                    print(f"Rate limit hit. Retrying after {wait_time} seconds.")
-                    time.sleep(wait_time)
-                else:
-                    # Fallback to exponential backoff if Retry-After is not present
-                    wait_time = 2 ** retries
-                    print(f"Rate limit hit. Retrying with exponential backoff after {wait_time} seconds.")
-                    time.sleep(wait_time)
-                retries += 1
-            except openai.error.APIError as e:
-                print(f"OpenAI API error: {e}")
-                retries += 1
-                time.sleep(2 ** retries) # Generic backoff for other API errors
-            except Exception as e:
-                print(f"An unexpected error occurred: {e}")
-                break # Exit on unhandled errors
-
-        return {"chatgpt_rouge": sum(scores) / len(scores)}
-
 
 LLM_JUDGE_TEMPLATE = """You are shown a prompt and asked to assess the quality of an LLM-generated answer on the following dimensions:
 
