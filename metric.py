@@ -238,8 +238,8 @@ class ChatGPTRouge(Metric):
         super().__init__(**kwargs)
         self.num_retries = num_retries
         self.model = kwargs.get("model", "gpt-4o-mini")
-        self.max_delay = kwargs.get("max_delay", 30)
-        self.base_delay = kwargs.get("base_delay", 2)
+        self.max_delay = kwargs.get("max_delay", 60)
+        self.base_delay = kwargs.get("base_delay", 4)
 
 
     def _load_metric(self, **kwargs):
@@ -366,8 +366,8 @@ class ChatGPTJudge(Metric):
         self.criteria_def = "\n".join([f"{k}: {CRITERIA[k]}" for k in self.criteria])
         self.use_batch = kwargs.get("use_batch", False)
         self.max_retries = kwargs.get("max_retries", 5)
-        self.max_delay = kwargs.get("max_delay", 30)
-        self.base_delay = kwargs.get("base_delay", 2)
+        self.max_delay = kwargs.get("max_delay", 60)
+        self.base_delay = kwargs.get("base_delay", 4)
         self.model = kwargs.get("model", "gpt-4o-mini")
 
     def _load_metric(self, **kwargs):
