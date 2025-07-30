@@ -48,7 +48,7 @@ class EvaluationTask(ABC):
 
     def _download(self):
         # Can over-write if not using HF
-        self.dataset = load_dataset(*self.hf_args)
+        self.dataset = load_dataset(*self.hf_args, trust_remote_code=True)
 
     def get_split(self, split):
         remove_cols = [
@@ -1651,7 +1651,7 @@ Now, write a one-page summary of the report.
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["THUDM/LongBench", "gov_report"],
+            hf_args=["zai-org/LongBench", "gov_report"],
             **kwargs,
         )
 
@@ -1744,7 +1744,7 @@ Now, write a one-page summary of all the news. Summary:
         super().__init__(
             prompt_template,
             max_tokens,
-            hf_args=["THUDM/LongBench", "multi_news"],
+            hf_args=["zai-org/LongBench", "multi_news"],
             **kwargs,
         )
 
